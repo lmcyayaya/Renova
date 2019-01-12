@@ -475,7 +475,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 156942611c5bc554993f635b42fe6f2e, type: 2}
+  - {fileID: 2100000, guid: 5fd3da07078e6674e993ecdace763739, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -640,7 +640,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 156942611c5bc554993f635b42fe6f2e, type: 2}
+  - {fileID: 2100000, guid: 5fd3da07078e6674e993ecdace763739, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -716,7 +716,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vertical: 0
   horizontal: 0
-  runInput: 0
+  o_input: 0
+  x_input: 0
+  s_input: 0
+  t_input: 0
+  r1_input: 0
+  l1_input: 0
+  r2_input: 0
+  l2_input: 0
+  r2_axis: 0
+  l2_axis: 0
   delta: 0
 --- !u!54 &1674085414
 Rigidbody:
@@ -778,6 +787,10 @@ MonoBehaviour:
   activeModel: {fileID: 0}
   vertical: 0
   horizontal: 0
+  r1: 0
+  r2: 0
+  l1: 0
+  l2: 0
   moveSpeed: 3
   runSpeed: 5.5
   rotateSpeed: 8
@@ -785,9 +798,12 @@ MonoBehaviour:
   onGround: 0
   run: 0
   lockOn: 0
+  inAction: 0
+  canMove: 0
   moveAmount: 0
   delta: 0
   moveDir: {x: 0, y: 0, z: 0}
+  a_hook: {fileID: 0}
   anim: {fileID: 0}
   rb: {fileID: 0}
   ignoreLayers:
