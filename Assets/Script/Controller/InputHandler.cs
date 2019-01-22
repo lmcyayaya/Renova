@@ -30,7 +30,7 @@ namespace SA
             states.Init();
 
             camManager = CameraManager.singleton;
-            camManager.Init(this.transform);
+            camManager.Init(states);
         }
         void FixedUpdate()
         {
@@ -44,6 +44,7 @@ namespace SA
         {
             delta = Time.deltaTime;
             states.Tick(delta);
+            Debug.Log(r2_axis);
         }
         void GetInput()
         {
@@ -55,12 +56,12 @@ namespace SA
             t_input = Input.GetButtonUp("T");
             r2_axis = Input.GetAxis("R2");
             r2_input = Input.GetButton("R2");
-            if(r2_axis != 1)
+            if(r2_axis <0)
                 r2_input = true;
 
             l2_axis = Input.GetAxis("L2");
             l2_input = Input.GetButton("L2");
-            if(l2_axis != 1)
+            if(l2_axis <0)
                 l2_input = true;
             r1_input = Input.GetButton("R1");
             l1_input = Input.GetButton("L1");
@@ -72,15 +73,23 @@ namespace SA
         {
             states.horizontal = horizontal;
             states.vertical = vertical;
-
+            states.r1 = r1_input;
+            states.r2 = r2_input;
+            states.l1 = l1_input;
+            states.l2 = l2_input;
+            states.O = o_input;
+            states.X = x_input;
+            states.S = s_input;
+            states.T = t_input;
+            states.rollInput = l1_input;
             Vector3 v = states.vertical * camManager.transform.forward;
             Vector3 h = horizontal * camManager.transform.right;
             states.moveDir = (v+h).normalized;
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             states.moveAmount = Mathf.Clamp01(m);
-            states.rollInput = x_input;
+            
 
-            if(o_input)
+            if(r1_input)
             {
                 states.run = (states.moveAmount > 0);
             }
@@ -89,12 +98,9 @@ namespace SA
                 states.run = false;
             }
 
-            states.r1 = r1_input;
-            states.r2 = r2_input;
-            states.l1 = l1_input;
-            states.l2 = l2_input;
+            
 
-            if(t_input)
+            if(l2_input)
             {
                 states.isTwoHanded = !states.isTwoHanded;
                 states.HandleTwoHanded();
@@ -106,7 +112,8 @@ namespace SA
                 {
                     states.lockOn = false;
                 }
-                camManager.lockonTarget = states.lockonTarget.transform;
+                camManager.lockonTarget = states.lockonTarget;
+                states.lockonTransform = camManager.lockonTransform;
                 camManager.lockon = states.lockOn;
             }
         }

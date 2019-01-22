@@ -19,18 +19,22 @@ namespace SA
         public float lookAngle;
         public float tiltAngle;
 
+        bool usedRightAxis;
+
 
         public Transform target;
-        public Transform lockonTarget;
-
+        public EnemyTarget lockonTarget;
+        public Transform lockonTransform;
 
         [HideInInspector]
         public Transform pivot;
         [HideInInspector]
         public Transform camTrans;
-        public void Init(Transform t)
+        StateManager states;
+        public void Init(StateManager st)
         {
-            target = t;
+            states = st;
+            target = st.transform;
             camTrans =Camera.main.transform;
             pivot = camTrans.parent;
         }
@@ -43,6 +47,33 @@ namespace SA
             float c_v = Input.GetAxis("RightAxis Y");
 
             float targetSpeed = mouseSpeed;
+
+            if(lockonTarget!=null)
+            {
+                if(lockonTransform == null)
+                {
+                    lockonTransform =lockonTarget.GetTarget();
+                    states.lockonTransform = lockonTransform;
+                }
+
+                if(Mathf.Abs(c_h) > 0.6f)
+                {
+                    if(!usedRightAxis)
+                    {
+                        lockonTransform = lockonTarget.GetTarget((c_h > 0 ));
+                        states.lockonTransform = lockonTransform;
+                        usedRightAxis = true;
+                    }
+                }
+            }
+
+            if(usedRightAxis)
+            {
+                if(Mathf.Abs(c_h) < 0.6f)
+                {
+                    usedRightAxis = false;
+                }
+            }
 
             if(c_h!=0 || c_v!=0)
             {
@@ -81,14 +112,14 @@ namespace SA
 
             if(lockon && lockonTarget != null)
             {
-                Vector3 targetDir = lockonTarget.position - this.transform.position;
+                Vector3 targetDir = lockonTransform.position - this.transform.position;
                 targetDir.Normalize();
 
                 if(targetDir == Vector3.zero)
                     targetDir = this.transform.forward;
                 Quaternion targetRot = Quaternion.LookRotation(targetDir);
-                targetRot.x = 0;
-                targetRot.z = 0;
+                //targetRot.x = 0;
+                //targetRot.z = 0;
                 transform.rotation = Quaternion.Slerp(transform.rotation,targetRot,d*9);
                 lookAngle = transform.eulerAngles.y;
                 return;

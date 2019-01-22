@@ -11,7 +11,7 @@ namespace SA
         [Header("Inputs")]
         public float vertical;
         public float horizontal;
-        public bool r1,r2,l1,l2;
+        public bool r1,r2,l1,l2,O,X,S,T;
         public bool twoHanded;
 
         public bool rollInput;
@@ -33,6 +33,8 @@ namespace SA
 
         [Header("Other")]
         public EnemyTarget lockonTarget;
+        public Transform lockonTransform;
+        public AnimationCurve roll_curve;
 
 
         public float moveAmount;
@@ -109,7 +111,8 @@ namespace SA
             if(!canMove)
                 return;
 
-            a_hook.rm_multi = 1;    
+            //a_hook.rm_multi = 1;
+            a_hook.CloseRoll();    
             HandleRolls();
 
             anim.applyRootMotion = false;
@@ -137,7 +140,9 @@ namespace SA
                 lockOn = false;
             }
 
-            Vector3 targetDir = (lockOn==false) ? moveDir : lockonTarget.transform.position - this.transform.position;
+            Vector3 targetDir = (lockOn==false) ? moveDir 
+                : (lockonTransform !=null) ? lockonTransform.transform.position - this.transform.position
+                    : moveDir;
             targetDir.y = 0;
             if(targetDir == Vector3.zero)
                 targetDir = Vector3.forward;
@@ -159,17 +164,17 @@ namespace SA
 
             if(!canMove)
                 return;
-            if(r1 == false && r2 == false && l1 == false && l2 == false)
+            if(O == false && X == false && S == false && T == false)
                 return;
             string targetAnim = null;
             
-            if(r1)
+            if(O)
                 targetAnim = "oh_attack_1";
-            if(r2)
+            if(X)
                 targetAnim = "oh_attack_2";
-            if(l2)
+            if(S)
                 targetAnim = "oh_attack_3";
-            if(l1)
+            if(T)
                 targetAnim = "th_attack_1";
 
             if(targetAnim==null)
@@ -214,15 +219,22 @@ namespace SA
                 Quaternion targetRot = Quaternion.LookRotation(moveDir);
                 transform.rotation = targetRot;
                 anim.SetFloat("horizontal",h);
+                a_hook.InitForRoll();
+                a_hook.rm_multi = rollSpeed; 
+            }
+            else
+            {
+                a_hook.rm_multi = 1.3f;
             }
 
-            a_hook.rm_multi = rollSpeed;            
+                       
 
             anim.SetFloat("vertical",v);
 
             canMove = false;
             inAction = true;
             anim.CrossFade("Rolls",0.2f);
+            
         }
 
         void HandleMovementAnimations()
