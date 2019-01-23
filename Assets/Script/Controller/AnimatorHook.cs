@@ -47,7 +47,7 @@ namespace SA
                 Vector3 delta = anim.deltaPosition;
                 delta.y = 0;
                 Vector3 v = (delta * rm_multi) / states.delta;
-                states.rb.velocity = v;
+                states.rb.velocity = v + states.rb.velocity.y*Vector3.up;
             }
             else
             {
@@ -55,10 +55,10 @@ namespace SA
                 if(roll_t >1)
                     roll_t = 1;
                 float zValue = rollCurve.Evaluate(roll_t);
-                Vector3 v1 = Vector3.forward * zValue;
+                Vector3 v1 = zValue * Vector3.forward;
                 Vector3 relative = transform.TransformDirection(v1);
                 Vector3 v2 = (relative * rm_multi);
-                states.rb.velocity = v2;
+                states.rb.velocity = v2 + states.rb.velocity.y*Vector3.up;
             }
             
         }

@@ -227,14 +227,11 @@ namespace SA
                 a_hook.rm_multi = 1.3f;
             }
 
-                       
-
             anim.SetFloat("vertical",v);
 
             canMove = false;
             inAction = true;
             anim.CrossFade("Rolls",0.2f);
-            
         }
 
         void HandleMovementAnimations()

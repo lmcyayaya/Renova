@@ -37,14 +37,14 @@ namespace SA
             delta = Time.fixedDeltaTime;
             GetInput();
             UpdateStates();
-            states.FixedTick(Time.deltaTime);
+            states.FixedTick(delta);
             camManager.Tick(delta);
         }
         void Update()
         {
             delta = Time.deltaTime;
             states.Tick(delta);
-            Debug.Log(r2_axis);
+            Debug.Log(r2_input);
         }
         void GetInput()
         {
