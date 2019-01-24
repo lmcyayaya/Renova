@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Script\BulletMove.cs" />
+     <Compile Include="Assets\Script\CameraCollision.cs" />
      <Compile Include="Assets\Script\Controller\AnimatorHook.cs" />
      <Compile Include="Assets\Script\Controller\CameraManager.cs" />
      <Compile Include="Assets\Script\Controller\InputHandler.cs" />

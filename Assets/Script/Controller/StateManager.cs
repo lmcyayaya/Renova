@@ -193,7 +193,7 @@ namespace SA
 
         void HandleRolls()
         {
-            if(!rollInput)
+            if(!rollInput || !onGround)
                 return;
             float v = vertical;
             float h = horizontal;
