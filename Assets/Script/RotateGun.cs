@@ -23,12 +23,14 @@ public class RotateGun : MonoBehaviour
     }
     void Update()
     {
+        
         if(cam!=null)
         {
             RaycastHit hit;
-            var mousePos = Input.mousePosition;
-            rayLookAt = cam.ScreenPointToRay(mousePos);
-            if(Physics.Raycast(cam.transform.position,pivot.position,out hit,maximumLenght))
+            //var mousePos = Input.mousePosition;
+            //rayLookAt = cam.ScreenPointToRay(mousePos);
+            var shootDirection =(pivot.position-cam.transform.position).normalized;
+            if(Physics.Raycast(cam.transform.position,shootDirection,out hit,maximumLenght,11))
             {
                 RotateToLookDirection(this.gameObject,hit.point);
             }
@@ -37,7 +39,9 @@ public class RotateGun : MonoBehaviour
                 var pos = (pivot.position - cam.transform.position) * maximumLenght;
                 RotateToLookDirection(this.gameObject,pos);
             }
+            Debug.DrawRay(cam.transform.position,shootDirection*maximumLenght,Color.blue);
         }
+        
     }
     private void FixedUpdate()
     {
