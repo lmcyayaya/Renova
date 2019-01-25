@@ -63,7 +63,9 @@
      <Compile Include="Assets\Script\Helper.cs" />
      <Compile Include="Assets\Script\KeepBool.cs" />
      <Compile Include="Assets\Script\RotateGun.cs" />
+     <Compile Include="Assets\Script\RotateGunTest.cs" />
      <Compile Include="Assets\Script\SpawnProjectiles.cs" />
+     <Compile Include="Assets\Script\SpawnProjectilesTest.cs" />
      <Compile Include="Assets\Script\Test.cs" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
