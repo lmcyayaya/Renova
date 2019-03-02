@@ -5,6 +5,7 @@ namespace SA
 {
     public class CameraManager : MonoBehaviour
     {
+        public bool aim;
         public bool lockon;
         public float follwSpeeed =9.0f;
         public float mouseSpeed = 2.0f;
@@ -25,12 +26,16 @@ namespace SA
         public Transform target;
         public EnemyTarget lockonTarget;
         public Transform lockonTransform;
+        public Transform aimPivot;
 
         [HideInInspector]
         public Transform pivot;
         [HideInInspector]
         public Transform camTrans;
         StateManager states;
+        [HideInInspector]
+        public CameraCollision camCol;
+        public GameObject crossHair;
         public void Init(StateManager st)
         {
             states = st;
@@ -81,7 +86,10 @@ namespace SA
                 v = c_v;
                 targetSpeed = controllerSpeed;
             }
-            FollowTarget(d);
+            if(!aim)
+                FollowTarget(d);
+            else
+                AimCameraMove(d);
             HandleRotations(d,v,h,targetSpeed);
         } 
 
@@ -90,8 +98,23 @@ namespace SA
             float speed = d * follwSpeeed;
             Vector3 targetPostion = Vector3.Lerp(transform.position,target.transform.position,speed);
             transform.position = targetPostion;
+            camCol.maxDistance = 6;
+            follwSpeeed = 4;
+            controllerSpeed = 4;
+            states.moveSpeed = 2;
+            crossHair.SetActive(false);
         }
-
+        void AimCameraMove(float d)
+        {
+            float speed = d * follwSpeeed;
+            Vector3 targetPostion = Vector3.Lerp(transform.position,aimPivot.transform.position,speed);
+            transform.position = targetPostion;
+            camCol.maxDistance = 3;
+            follwSpeeed = 15;
+            controllerSpeed = 2.5f;
+            states.moveSpeed =1;
+            crossHair.SetActive(true);
+        }
         void HandleRotations(float d,float v,float h, float targetSpeed)
         {
             if(turnSmoothing > 0)

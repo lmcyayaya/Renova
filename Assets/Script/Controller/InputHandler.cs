@@ -44,7 +44,6 @@ namespace SA
         {
             delta = Time.deltaTime;
             states.Tick(delta);
-            Debug.Log(r2_input);
         }
         void GetInput()
         {
@@ -81,9 +80,8 @@ namespace SA
             states.X = x_input;
             states.S = s_input;
             states.T = t_input;
-            states.rollInput = l1_input;
             Vector3 v = states.vertical * camManager.transform.forward;
-            Vector3 h = horizontal * camManager.transform.right;
+            Vector3 h = horizontal *  camManager.transform.right;
             states.moveDir = (v+h).normalized;
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             states.moveAmount = Mathf.Clamp01(m);
@@ -97,14 +95,38 @@ namespace SA
             {
                 states.run = false;
             }
+            //瞄準
+            if(l1_input)
+            {
+                states.aim = true;
+                camManager.aim = states.aim;
+                states.lockOn = true;
+            }
+            else
+            {
+                states.aim = false;
+                camManager.aim = states.aim;
+                states.lockOn = false;
+            }
+            if(Input.GetButtonDown("R1"))
+            {
+                camManager.lockon = true;
+                camManager.lockonTarget = null;
+            }
+            else if(Input.GetButtonUp("R1"))
+            {
+                camManager.lockon =false;
+                camManager.lockonTarget = null;
+            }
+            //
 
-            
 
-            if(l2_input)
+
+            /* if(l2_input)
             {
                 states.isTwoHanded = !states.isTwoHanded;
                 states.HandleTwoHanded();
-            }
+            }*/
             if(rightAxis_down)
             {
                 states.lockOn = !states.lockOn;
