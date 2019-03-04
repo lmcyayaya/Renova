@@ -8,7 +8,7 @@ namespace SA
         Animator anim;
         StateManager states;
         public float rm_multi;
-        bool rolling;
+        public bool rolling;
         float roll_t;
         AnimationCurve rollCurve;
         public void Init(StateManager st)
@@ -16,6 +16,7 @@ namespace SA
             states = st;
             anim = st.anim;
             rollCurve = st.roll_curve;
+            
         }
 
         public void InitForRoll()
@@ -37,7 +38,6 @@ namespace SA
         {
             if(states.canMove)
                 return;
-
             states.rb.drag = 0;
 
             if(rm_multi ==0)

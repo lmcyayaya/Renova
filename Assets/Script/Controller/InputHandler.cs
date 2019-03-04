@@ -108,14 +108,12 @@ namespace SA
                 camManager.aim = states.aim;
                 states.lockOn = false;
             }
-            if(Input.GetButtonDown("R1"))
+            if(Input.GetButtonDown("L1"))
             {
-                camManager.lockon = true;
                 camManager.lockonTarget = null;
             }
-            else if(Input.GetButtonUp("R1"))
+            else if(Input.GetButtonUp("L1"))
             {
-                camManager.lockon =false;
                 camManager.lockonTarget = null;
             }
             //

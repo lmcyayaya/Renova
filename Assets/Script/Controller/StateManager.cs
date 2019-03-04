@@ -20,6 +20,8 @@ namespace SA
         public float rotateSpeed = 5;
         public float toGround = 0.5f;
         public float rollSpeed = 1;
+        public float dodgeTime = 0.2f;
+        float timer;
 
         [Header("States")]
         public bool onGround;
@@ -29,6 +31,7 @@ namespace SA
         public bool canMove;
         public bool isTwoHanded;
         public bool aim;
+        public bool invincible;
 
         [Header("Other")]
         public EnemyTarget lockonTarget;
@@ -89,9 +92,12 @@ namespace SA
         public void FixedTick(float d)
         {
             delta = d;
-
+            Debug.Log(invincible);
             DetectAction();
-
+            if(invincible)
+            {
+                HandleDodgeTime(d);
+            }
             if(inAction)
             {
                 anim.applyRootMotion = true;
@@ -252,7 +258,9 @@ namespace SA
 
             canMove = false;
             inAction = true;
+            invincible = true;
             anim.CrossFade("Rolls",0.2f);
+            
         }
 
         void HandleMovementAnimations()
@@ -294,5 +302,25 @@ namespace SA
         {
             anim.SetBool("two_handed",isTwoHanded);
         }
+        public void HandleDodgeTime(float d)
+        {
+            timer+=d;
+            if(timer>dodgeTime)
+            {
+                timer = 0;
+                invincible = false;
+            }
+        }
+        public void Damage()
+        {
+            if(invincible )
+                return;
+            canMove = false;
+            inAction = true;
+            invincible = true;
+            anim.CrossFade("damage_1",0.2f);
+        }
+
     }
+    
 }
