@@ -41,7 +41,7 @@ namespace SA
         public float moveAmount;
         [HideInInspector]
         public float delta;
-        [HideInInspector]
+        //[HideInInspector]
         public Vector3 moveDir;
 
         [HideInInspector]
@@ -92,7 +92,6 @@ namespace SA
         public void FixedTick(float d)
         {
             delta = d;
-            Debug.Log(invincible);
             DetectAction();
             if(invincible)
             {
@@ -141,6 +140,7 @@ namespace SA
                 targetSpeed = runSpeed;
             if(onGround)
                 rb.velocity = moveDir * (targetSpeed * moveAmount) ;
+                Debug.DrawLine(transform.position,transform.position+moveDir*5,Color.black);
 
             if(run)
             {
@@ -288,6 +288,7 @@ namespace SA
             float dis = toGround + 0.3f;
             RaycastHit hit;
             Debug.DrawRay(orgin,dir * dis);
+            
             if(Physics.Raycast(orgin,dir,out hit,dis,ignoreLayers))
             {
                 r = true;
