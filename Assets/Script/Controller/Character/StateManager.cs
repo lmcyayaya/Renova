@@ -15,12 +15,12 @@ namespace SA
         public bool twoHanded;
 
         [Header("Stats")]
-        public float moveSpeed = 2;
+        public float walkSpeed = 2;
         public float runSpeed = 3.5f;
         public float rotateSpeed = 5;
         public float toGround = 0.5f;
         public float rollSpeed = 1;
-        public float dodgeTime = 0.2f;
+        public float invincibleTime = 0.15f;
         float timer;
 
         [Header("States")]
@@ -52,6 +52,8 @@ namespace SA
         public Rigidbody rb;
         [HideInInspector]
         public LayerMask ignoreLayers;
+        [HideInInspector]
+        RaycastHit hit;
         float _actionDelay;
         public void Init()
         {
@@ -93,10 +95,6 @@ namespace SA
         {
             delta = d;
             DetectAction();
-            if(invincible)
-            {
-                HandleDodgeTime(d);
-            }
             if(inAction)
             {
                 anim.applyRootMotion = true;
@@ -110,80 +108,22 @@ namespace SA
                 {
                     return;
                 }
-                
             }
             canMove = anim.GetBool("canMove");    
 
             if(!canMove)
                 return;
-
-            //a_hook.rm_multi = 1;
-            a_hook.CloseRoll();    
-            HandleRolls();
-
+            a_hook.CloseRoll();
+            var q = Quaternion.LookRotation(moveDir);
+            Debug.Log("normal"+q.eulerAngles);  
+            
+        
             anim.applyRootMotion = false;
 
             rb.drag = (moveAmount > 0 || onGround == false) ? 0:4;
-
-            /*  同上
-            if(moveAmount > 0)
-            {
-                rb.drag = 0;
-            }
-            else
-            {
-                rb.drag = 4;
-            }*/
-
-            float targetSpeed = moveSpeed;
-            if(run)
-                targetSpeed = runSpeed;
-            if(onGround)
-                rb.velocity = moveDir * (targetSpeed * moveAmount) ;
-                Debug.DrawLine(transform.position,transform.position+moveDir*5,Color.black);
-
-            if(run)
-            {
-                lockOn = false;
-            }
-            if(!aim)
-            {
-
-                Vector3 targetDir = (lockOn==false) ? moveDir 
-                : (lockonTransform !=null) ? lockonTransform.transform.position - this.transform.position
-                    : moveDir;
-                targetDir.y = 0;
-                if(targetDir == Vector3.zero)
-                    targetDir = Vector3.forward;
-                Quaternion tr = Quaternion.LookRotation(targetDir);
-                Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * rotateSpeed);
-                transform.rotation = targetRotation;
-
-                anim.SetBool("lockon",lockOn);
-
-                if(!lockOn)
-                    HandleMovementAnimations();
-                else
-                    HandleLockOnAnimations(moveDir);
-            }
-            else
-            {
-                Vector3 targetDir =((Camera.main.transform.position+Camera.main.transform.forward*8)-this.transform.position);
-                targetDir.y = 0;
-                if(targetDir == Vector3.zero)
-                    targetDir = Vector3.forward;
-                Quaternion tr = Quaternion.LookRotation(targetDir);
-                Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * rotateSpeed);
-                transform.rotation = targetRotation;
-
-                anim.SetBool("lockon",lockOn);
-
-                if(!lockOn)
-                    HandleMovementAnimations();
-                else
-                    HandleLockOnAnimations(moveDir);
-            }
-            
+            HandleMovement();
+            HandleLookAndBodyAngle();
+            HandleRolls();
         }
 
         public void DetectAction()
@@ -212,8 +152,9 @@ namespace SA
             //rb.velocity = Vector3.zero;
         }
         public void Tick(float d)
-        {
+        {   
             delta = d;
+            HandleInvincibleTime(d);
             onGround = OnGround();
             anim.SetBool("onGround",onGround);
         }
@@ -222,47 +163,69 @@ namespace SA
         {
             if(!l2 || !onGround)
                 return;
-            float v = vertical;
-            float h = horizontal;
-
+            Vector3 relative = transform.InverseTransformDirection(moveDir);
+            float v = relative.z;
+            float h = relative.x;
             v = (moveAmount>0.3f)? 1 : 0;
             h = 0;
-            /* if(!lockOn)
-            {
-                v = (moveAmount>0.3f)? 1 : 0;
-                h = 0;
-            }
-            else
-            {
-                if(Mathf.Abs(v) < 0.3f)
-                    v = 0;
-                if(Mathf.Abs(h) < 0.3f)
-                    h = 0;
-            }*/
-            if(v!=0)
+             if(v!=0)
             {
                 if(moveDir == Vector3.zero)
                     moveDir = transform.forward;
                 Quaternion targetRot = Quaternion.LookRotation(moveDir);
                 transform.rotation = targetRot;
-                anim.SetFloat("horizontal",h);
+                Debug.Log(targetRot.eulerAngles);
+                Debug.Log("aaa :" +　transform.rotation.eulerAngles);
                 a_hook.InitForRoll();
-                a_hook.rm_multi = rollSpeed; 
+                a_hook.rm_multi = rollSpeed;
             }
             else
             {
                 a_hook.rm_multi = 1.3f;
             }
-
+            anim.SetFloat("horizontal",h);
             anim.SetFloat("vertical",v);
 
             canMove = false;
             inAction = true;
             invincible = true;
+            invincibleTime = 0.15f;
             anim.CrossFade("Rolls",0.2f);
+            
             
         }
 
+        void HandleLookAndBodyAngle()
+        {
+            Vector3 targetDir;
+            targetDir = (aim) ? ((Camera.main.transform.position+Camera.main.transform.forward*8)-this.transform.position)
+                : (lockOn==false) ? moveDir 
+                    : (lockonTransform !=null) ? lockonTransform.transform.position - this.transform.position
+                        : moveDir;
+                targetDir.y = 0;
+                if(targetDir == Vector3.zero)
+                    targetDir = Vector3.forward;
+                Quaternion tr = Quaternion.LookRotation(targetDir);
+                Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * rotateSpeed);
+                transform.rotation = targetRotation;
+
+                anim.SetBool("lockon",lockOn);
+
+                if(!lockOn &&!aim)
+                    HandleMovementAnimations();
+                else
+                    HandleLockOnAnimations(moveDir);
+        }
+        void HandleMovement()
+        {
+            float moveSpeed = walkSpeed;
+            if(run)
+                moveSpeed = runSpeed;
+            if(onGround)
+                rb.velocity = moveDir * (moveSpeed * moveAmount) ;
+            if(run)
+                lockOn = false;
+        }
         void HandleMovementAnimations()
         {
             anim.SetBool("run",run);
@@ -286,8 +249,7 @@ namespace SA
             Vector3 orgin = transform.position + (Vector3.up * toGround);
             Vector3 dir = -Vector3.up;
             float dis = toGround + 0.3f;
-            RaycastHit hit;
-            Debug.DrawRay(orgin,dir * dis);
+            Debug.DrawRay(orgin,dir * dis,Color.green);
             
             if(Physics.Raycast(orgin,dir,out hit,dis,ignoreLayers))
             {
@@ -303,10 +265,12 @@ namespace SA
         {
             anim.SetBool("two_handed",isTwoHanded);
         }
-        public void HandleDodgeTime(float d)
+        public void HandleInvincibleTime(float d)
         {
+            if(!invincible)
+                return;
             timer+=d;
-            if(timer>dodgeTime)
+            if(timer>invincibleTime)
             {
                 timer = 0;
                 invincible = false;
@@ -314,14 +278,15 @@ namespace SA
         }
         public void Damage()
         {
-            if(invincible )
+            if(invincible)
                 return;
             canMove = false;
             inAction = true;
             invincible = true;
+            invincibleTime = 0.2f;
             anim.CrossFade("damage_1",0.2f);
+            StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.2f,0.05f,1.5f));
         }
-
     }
     
 }

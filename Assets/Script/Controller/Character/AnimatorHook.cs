@@ -36,12 +36,13 @@ namespace SA
 
         void OnAnimatorMove() 
         {
+            
             if(states.canMove)
                 return;
             states.rb.drag = 0;
 
             if(rm_multi ==0)
-                rm_multi =1;
+                rm_multi =1.3f;
             if(!rolling)
             {
                 Vector3 delta = anim.deltaPosition;

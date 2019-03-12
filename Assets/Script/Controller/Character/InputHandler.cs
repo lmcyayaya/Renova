@@ -70,8 +70,10 @@ namespace SA
         }
         void UpdateStates()
         {
+            
             states.horizontal = horizontal;
             states.vertical = vertical;
+
             states.r1 = r1_input;
             states.r2 = r2_input;
             states.l1 = l1_input;
@@ -80,7 +82,7 @@ namespace SA
             states.X = x_input;
             states.S = s_input;
             states.T = t_input;
-            Vector3 v = states.vertical * camManager.transform.forward;
+            Vector3 v = vertical * camManager.transform.forward;
             Vector3 h = horizontal *  camManager.transform.right;
             states.moveDir = (v+h).normalized;
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
@@ -98,9 +100,19 @@ namespace SA
             //瞄準
             if(l1_input)
             {
-                states.aim = true;
-                camManager.aim = states.aim;
-                states.lockOn = true;
+                if(states.canMove)
+                {
+                    states.aim = true;
+                    camManager.aim = states.aim;
+                    states.lockOn = true;
+                }
+                else
+                {
+                    states.aim = false;
+                    camManager.aim = states.aim;
+                    states.lockOn = false;
+                }
+                
             }
             else
             {
@@ -127,10 +139,28 @@ namespace SA
             }*/
             if(rightAxis_down)
             {
+
+
                 states.lockOn = !states.lockOn;
                 if(states.lockonTarget ==null)
                 {
-                    states.lockOn = false;
+                    float distance = Mathf.Infinity;
+                    GameObject target = null;
+                    var enemys = GameObject.FindGameObjectsWithTag("Enemy");
+                    for(int i= 0 ; i < enemys.Length;i++)
+                    {
+                        if(Vector3.Distance(transform.position,enemys[i].transform.position) < distance)
+                        {
+                            distance = Vector3.Distance(transform.position,enemys[i].transform.position);
+                            target = enemys[i];
+                        }
+                    }
+                    states.lockonTarget = target.GetComponent<EnemyTarget>();
+                }
+                else
+                {
+                    states.lockonTarget =null;
+
                 }
                 camManager.lockonTarget = states.lockonTarget;
                 states.lockonTransform = camManager.lockonTransform;

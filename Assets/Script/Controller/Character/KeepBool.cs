@@ -5,7 +5,7 @@ using UnityEngine;
 public class KeepBool : StateMachineBehaviour
 {
     public string boolName;
-    public bool status;
+    public bool status =true;
     public bool resetOnExit = true;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state

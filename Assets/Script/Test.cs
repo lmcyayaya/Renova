@@ -9,6 +9,9 @@ namespace SA
         public float existTime=3.0f;
         float timer;
         Vector3 pos;
+        public TimeManager timeManager;
+        public StateManager state;
+        public AnimatorHook a_hook;
         // Start is called before the first frame update
         void Start()
         {
@@ -36,6 +39,17 @@ namespace SA
             if(col.tag=="Player")
             {
                 col.GetComponent<StateManager>().Damage();
+            }
+        }
+        private void OnTriggerEnter(Collider col)
+        {
+            if(col.tag=="Player")
+            {
+                a_hook = state.transform.GetComponentInChildren<AnimatorHook>();
+                if(state.invincible && a_hook.rolling)
+                {
+                    timeManager.Slowmotion();
+                }
             }
         }
 }

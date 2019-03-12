@@ -35,7 +35,7 @@ public class BulletMove : MonoBehaviour
         else
             Debug.Log("No Speed");
 
-        //Destroy(this.gameObject,5);
+        Destroy(this.gameObject,6);
     }
     private void OnCollisionEnter(Collision col)
     {

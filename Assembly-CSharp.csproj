@@ -106,36 +106,38 @@
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineMixer.cs" />
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineShot.cs" />
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineTrack.cs" />
-     <Compile Include="Assets\Script\Controller\AnimatorHook.cs" />
-     <Compile Include="Assets\Script\Controller\CameraCollision.cs" />
-     <Compile Include="Assets\Script\Controller\CameraManager.cs" />
-     <Compile Include="Assets\Script\Controller\CharacterDatabase.cs" />
-     <Compile Include="Assets\Script\Controller\InputHandler.cs" />
-     <Compile Include="Assets\Script\Controller\KeepBool.cs" />
-     <Compile Include="Assets\Script\Controller\StateManager.cs" />
+     <Compile Include="Assets\Script\Controller\Camera\CameraCollision.cs" />
+     <Compile Include="Assets\Script\Controller\Camera\CameraManager.cs" />
+     <Compile Include="Assets\Script\Controller\Camera\CameraShaker.cs" />
+     <Compile Include="Assets\Script\Controller\Character\AnimatorHook.cs" />
+     <Compile Include="Assets\Script\Controller\Character\CharacterDatabase.cs" />
+     <Compile Include="Assets\Script\Controller\Character\InputHandler.cs" />
+     <Compile Include="Assets\Script\Controller\Character\KeepBool.cs" />
+     <Compile Include="Assets\Script\Controller\Character\StateManager.cs" />
+     <Compile Include="Assets\Script\Controller\TimeManager.cs" />
      <Compile Include="Assets\Script\Enemy\EnemyTarget.cs" />
      <Compile Include="Assets\Script\FloatingGun\BulletMove.cs" />
      <Compile Include="Assets\Script\FloatingGun\FloatingGunMove.cs" />
      <Compile Include="Assets\Script\FloatingGun\RotateGun.cs" />
      <Compile Include="Assets\Script\FloatingGun\SpawnProjectiles.cs" />
      <Compile Include="Assets\Script\Helper.cs" />
-     <Compile Include="Assets\Test.cs" />
+     <Compile Include="Assets\Script\Test.cs" />
      <None Include="Assets\Cinemachine\ReleaseNotes.txt" />
      <None Include="Assets\Forceling\ForcelingWorldSpaceGrid\Forceling_WorldSpaceGrid.shader" />
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.DataPrivacy">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.0f2/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -339,19 +341,19 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.0f2/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Advertisements">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/PackageCache/com.unity.ads@2.3.1/Runtime/UnityEngine.Advertisements.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/PackageCache/com.unity.ads@2.3.1/Runtime/UnityEngine.Advertisements.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Advertisements.Editor">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/PackageCache/com.unity.ads@2.3.1/Runtime/UnityEngine.Advertisements.Editor.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/PackageCache/com.unity.ads@2.3.1/Runtime/UnityEngine.Advertisements.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Editor">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.StandardEvents">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Tracker">
- <HintPath>C:/Users/C617-3/Desktop/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+ <HintPath>C:/Users/C617-3/Documents/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
  </Reference>
  <Reference Include="netstandard">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.0f2/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
