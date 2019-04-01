@@ -9,7 +9,7 @@ public class CharacterDatabase : MonoBehaviour
     public int Overclock_Level;
     public float moveSpeed;
     public float dodgeTime;
-    public float ATK;
+    public float ATK = 10;
     public float DEF;
     public float SP;//Stunned Power Point
     public float shootingSpeed;

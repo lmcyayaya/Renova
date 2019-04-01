@@ -88,7 +88,6 @@ namespace SA
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             states.moveAmount = Mathf.Clamp01(m);
             
-
             if(r1_input)
             {
                 states.run = (states.moveAmount > 0);

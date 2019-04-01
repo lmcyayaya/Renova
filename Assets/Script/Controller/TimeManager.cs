@@ -5,11 +5,13 @@ namespace SA
 {
     public class TimeManager : MonoBehaviour
     {
-        public float slowdownFactor = 0.6f;
-        public float slowdownLength = 1f;
+        float slowdownFactor = 0.05f;
+        float slowdownLength = 2f;
         bool beSlowmotion = false;
+        float timer;
         void Update()
         {
+            
             Time.timeScale +=(1f/slowdownLength) * Time.unscaledDeltaTime;
             Time.timeScale = Mathf.Clamp(Time.timeScale,0f,1f);
             Time.fixedDeltaTime = Time.timeScale * .02f;
@@ -18,12 +20,13 @@ namespace SA
                 beSlowmotion = false;
             }
         }
-        public void Slowmotion()
+        public void SlowmotionSet(float length,float scale )
         {
             if(beSlowmotion)
                 return;
             beSlowmotion = true;
-            Time.timeScale = slowdownFactor;
+            slowdownLength = length;
+            Time.timeScale = scale;
         }
     }
 }

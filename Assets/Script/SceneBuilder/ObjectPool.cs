@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class ObjectPool : MonoBehaviour
 {
-    private static ObjectPool instence = null;
-    public static ObjectPool Instence
+    private static ObjectPool instance = null;
+    public static ObjectPool Instance
     {
-        get {return instence;}
+        get {return instance;}
     }
         
 
@@ -15,79 +15,83 @@ public class ObjectPool : MonoBehaviour
     public ObjPoolSetting[] objPool;
 
     //local use
-    private static Dictionary<string, ObjPoolCounter> objPoolCounter = new Dictionary<string, ObjPoolCounter>();
-    private static Dictionary<string, Dictionary<GameObject,bool>> poolObjStatus = new Dictionary<string, Dictionary<GameObject,bool>>();
     private static Dictionary<GameObject, string> poolObjList = new Dictionary<GameObject, string>();
-    private static Dictionary<string, Transform> poolParentList = new Dictionary<string, Transform>();
+    private static Dictionary<string, ObjPoolInfo> poolInfo = new Dictionary<string, ObjPoolInfo>();
 
     private void Awake()
     {
-        if(instence ==null)
-            instence = this;
+        if(instance ==null)
+            instance = this;
         CraetPoolObject();
     }
 
     private void CraetPoolObject()
     {
-        GameObject newobj = null;
         if(objPool.Length == 0) return;
 
         foreach(ObjPoolSetting ops in objPool)
         {
             GameObject pool = new GameObject(ops.name);
             pool.transform.SetParent(transform);
-            objPoolCounter.Add(ops.name,new ObjPoolCounter(ops.Quantity,0,ops.Quantity));
-            poolObjStatus.Add(ops.name,new Dictionary<GameObject,bool>());
-            poolParentList.Add(ops.name,pool.transform);
+            poolInfo.Add(ops.name,new ObjPoolInfo(pool.transform, ops.prefab, ops.enableInPool));
 
             for(int i = 1; i<=ops.Quantity; i++)
             {
-                newobj = Instantiate(ops.prefab,pool.transform);
-                newobj.SetActive(ops.enableInPool);
-                newobj.transform.position = transform.position;
-                newobj.name = string.Concat(ops.name,"(" , i , ")");
-                poolObjStatus[ops.name].Add(newobj,false);
-                poolObjList.Add(newobj,ops.name);
+                GameObject newObj = poolInfo[ops.name].AddNewObj();
+                poolObjList.Add(newObj,ops.name);
             }
 
         }
+
     }
 
     public static Transform TakeFormPool(string pool)
     {
-        if(objPoolCounter[pool].inObj == 0)
-            return null;
-
-        Transform t =null;
-        Dictionary<GameObject,bool> objList = poolObjStatus[pool];
-        foreach(GameObject g in objList.Keys)
-        {
-            if(!objList[g])
-            {
-                objList[g] = true;
-                g.SetActive(true);
-                t = g.transform;
-                break;
-            }
-        }
-        
-        objPoolCounter[pool].Take();
+        Transform t = poolInfo[pool].Take();
+        if(poolInfo[pool].inObj < 10)
+            instance.AddMore(pool);
 
         return t;
 
     }
-    public static void ReturnToPool(GameObject obj)
+    public static IEnumerator ReturnToPool(GameObject obj,float t)
     {
-        obj.SetActive(false);
-        string p = poolObjList[obj];
-        poolObjStatus[p][obj] = false;
-        obj.transform.SetParent(instence.transform);
-        obj.transform.SetPositionAndRotation(instence.transform.position,instence.transform.rotation);
-
-        objPoolCounter[p].Return();
-
+        yield return new WaitForSeconds(t);
+        poolInfo[poolObjList[obj]].Return(obj);
+        yield return null;
     }
+    private void AddMore(string pool)
+    {
+        if(poolInfo[pool].corou == null)
+            poolInfo[pool].corou = StartCoroutine(AddMoreProcess(pool));
+    }
+    private IEnumerator AddMoreProcess(string pool)
+    {
+        poolInfo[pool].addMoreCounter++;
+        int addAmt = (int)(poolInfo[pool].totalObj * 0.2f);
+        if(addAmt < 10) addAmt =10;
+        
+        for(int i = 0; i < addAmt;i++)
+        {
+            GameObject newObj = poolInfo[pool].AddNewObj();
+            poolObjList.Add(newObj,pool);
+            yield return null;
+        }
 
-
-
+        poolInfo[pool].corou = null;
+    }
+    private void OnApplicationQuit()
+    {
+        foreach(ObjPoolSetting ops in objPool)
+        {
+            string pool = ops.name;
+            int maxUse = poolInfo[pool].maxOut;
+            string recAmt = 
+                poolInfo[pool].addMoreCounter > 0 || ops.Quantity - maxUse > 15 ? 
+                (maxUse + 15).ToString() : "-";
+            Debug.Log(string.Concat(
+                "Pool [ ", pool, " ] max out value: ", maxUse, " (", recAmt, ")\n")
+            );
+        }
+    }
 }

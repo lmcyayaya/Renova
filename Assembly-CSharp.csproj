@@ -106,6 +106,8 @@
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineMixer.cs" />
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineShot.cs" />
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineTrack.cs" />
+     <Compile Include="Assets\DamageText.cs" />
+     <Compile Include="Assets\EnemysDamage.cs" />
      <Compile Include="Assets\Script\Controller\Camera\CameraCollision.cs" />
      <Compile Include="Assets\Script\Controller\Camera\CameraManager.cs" />
      <Compile Include="Assets\Script\Controller\Camera\CameraShaker.cs" />
@@ -114,6 +116,7 @@
      <Compile Include="Assets\Script\Controller\Character\InputHandler.cs" />
      <Compile Include="Assets\Script\Controller\Character\KeepBool.cs" />
      <Compile Include="Assets\Script\Controller\Character\StateManager.cs" />
+     <Compile Include="Assets\Script\Controller\Enemys\EnemysData.cs" />
      <Compile Include="Assets\Script\Controller\TimeManager.cs" />
      <Compile Include="Assets\Script\Enemy\EnemyTarget.cs" />
      <Compile Include="Assets\Script\FloatingGun\BulletMove.cs" />
@@ -122,10 +125,29 @@
      <Compile Include="Assets\Script\FloatingGun\SpawnProjectiles.cs" />
      <Compile Include="Assets\Script\Helper.cs" />
      <Compile Include="Assets\Script\SceneBuilder\ObjectPool.cs" />
+     <Compile Include="Assets\Script\SceneBuilder\ParticleReturnToPool.cs" />
      <Compile Include="Assets\Script\System.cs" />
      <Compile Include="Assets\Script\Test.cs" />
+     <Compile Include="Assets\Script\UI\Enemys\UI_EnemysHPBar.cs" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
      <None Include="Assets\Cinemachine\ReleaseNotes.txt" />
+     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
      <None Include="Assets\Forceling\ForcelingWorldSpaceGrid\Forceling_WorldSpaceGrid.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
+     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/C617-3/Documents/Renova/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>

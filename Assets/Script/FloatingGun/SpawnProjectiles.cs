@@ -27,11 +27,13 @@ public class SpawnProjectiles : MonoBehaviour
     }
     public void SpawnBullet()
     {
+        StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.05f,0.03f,1.5f));
         Transform vfx = null ;
         if(firePoint!=null)
         {
             //vfx = Instantiate(effectToSpawn,firePoint.transform.position,Quaternion.identity);
             vfx = ObjectPool.TakeFormPool("Bullet");
+            vfx.SetParent(null);
             vfx.transform.position = firePoint.transform.position;
             if(rotateGun!=null)
             {
@@ -42,6 +44,20 @@ public class SpawnProjectiles : MonoBehaviour
         {
             Debug.Log("No Fire Point");
         }
+        var muzzleVfx = ObjectPool.TakeFormPool("vfx_muzzle");
+        muzzleVfx.SetParent(null);
+        muzzleVfx.transform.position = vfx.transform.position;
+        muzzleVfx.transform.forward = vfx.transform.forward;
 
+        var psMuzzle = muzzleVfx.GetComponent<ParticleSystem>();
+        if(psMuzzle!=null)
+        {   
+            StartCoroutine(ObjectPool.ReturnToPool(muzzleVfx.gameObject,psMuzzle.main.duration));
+        }
+        else
+        {
+            var psChild = muzzleVfx.transform.GetChild(0).GetComponent<ParticleSystem>();
+            StartCoroutine(ObjectPool.ReturnToPool(muzzleVfx.gameObject,psChild.main.duration));
+        }
     }
 }

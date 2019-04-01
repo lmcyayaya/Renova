@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 2a4b396c45ab87c4ab9c711d4e0df94c
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Noirside
+  fontNames:
+  - Noirside
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: ee9bf3c40fd9e86498bfce30edda20f2, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

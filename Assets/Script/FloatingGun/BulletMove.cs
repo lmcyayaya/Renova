@@ -7,64 +7,41 @@ public class BulletMove : MonoBehaviour
     
     public float speed;
     public float fireRate;
-    public GameObject  muzzlePrefab;
-    public GameObject hitPrefab;
-    float timer=0;
-    private void Start()
+    private float p_speed;
+    private void Awake()
     {
-        if(muzzlePrefab!=null)
-        {
-            var muzzleVfx = Instantiate(muzzlePrefab,transform.position,Quaternion.identity);
-            muzzleVfx.transform.forward = gameObject.transform.forward;
-
-            var psMuzzle = muzzleVfx.GetComponent<ParticleSystem>();
-            if(psMuzzle!=null)
-            {   
-                Destroy(muzzleVfx,psMuzzle.main.duration);
-            }
-            else
-            {
-                var psChild = muzzleVfx.transform.GetChild(0).GetComponent<ParticleSystem>();
-                Destroy(muzzleVfx,psChild.main.duration);
-            }
-        }
+        p_speed = speed;
     }
-    void Update()
+    void FixedUpdate()
     {
         if(speed!=0)
             transform.position += transform.forward * (speed*Time.deltaTime);
         else
-            Debug.Log("No Speed");
-
-        timer+=Time.deltaTime;
-        if(timer>6)
-        {
-            timer = 0;
-            ObjectPool.ReturnToPool(this.gameObject);
-        }
-            
+            Debug.Log("No Speed"); 
     }
     private void OnCollisionEnter(Collision col)
     {
         speed = 0;
+        this.GetComponent<Rigidbody>().velocity =Vector3.zero;
         ContactPoint contact = col.contacts[0];
         Quaternion rot = Quaternion.FromToRotation(Vector3.up,contact.normal);
         Vector3 pos = contact.point;
-        if(hitPrefab!=null)
-        {
-            var hitVfx = Instantiate(hitPrefab,pos,rot);
+        var hitVfx = ObjectPool.TakeFormPool("vfx_Hit");
+        hitVfx.SetParent(null);
+        hitVfx.transform.position = pos;
+        hitVfx.rotation = rot;
+        StartCoroutine(ObjectPool.ReturnToPool(gameObject,0));
+    }
 
-            var psHit = hitVfx.GetComponent<ParticleSystem>();
-            if(psHit!=null)
-            {
-                Destroy(hitVfx,psHit.main.duration);
-            }
-            else
-            {
-                var psChild = hitVfx.transform.GetChild(0).GetComponent<ParticleSystem>();
-                Destroy(hitVfx,psChild.main.duration);
-            }
-        }
-        ObjectPool.ReturnToPool(this.gameObject);
+    private void OnEnable()
+    {
+        ReturnToPool(gameObject,6);
+        speed = p_speed;
+        this.GetComponent<Rigidbody>().velocity =Vector3.zero;
+        
+    }
+    private void ReturnToPool(GameObject obj , float t)
+    {
+        StartCoroutine(ObjectPool.ReturnToPool(obj,t));
     }
 }

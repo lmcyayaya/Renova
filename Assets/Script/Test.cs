@@ -48,7 +48,7 @@ namespace SA
                 a_hook = state.transform.GetComponentInChildren<AnimatorHook>();
                 if(state.invincible && a_hook.rolling)
                 {
-                    timeManager.Slowmotion();
+                    timeManager.SlowmotionSet(2.0f,0.05f);
                 }
             }
         }

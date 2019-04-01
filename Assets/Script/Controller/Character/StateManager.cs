@@ -114,8 +114,6 @@ namespace SA
             if(!canMove)
                 return;
             a_hook.CloseRoll();
-            var q = Quaternion.LookRotation(moveDir);
-            Debug.Log("normal"+q.eulerAngles);  
             
         
             anim.applyRootMotion = false;
@@ -153,7 +151,6 @@ namespace SA
         }
         public void Tick(float d)
         {   
-            delta = d;
             HandleInvincibleTime(d);
             onGround = OnGround();
             anim.SetBool("onGround",onGround);
@@ -163,21 +160,29 @@ namespace SA
         {
             if(!l2 || !onGround)
                 return;
-            Vector3 relative = transform.InverseTransformDirection(moveDir);
-            float v = relative.z;
-            float h = relative.x;
-            v = (moveAmount>0.3f)? 1 : 0;
-            h = 0;
+            float v = (moveAmount>0.2f)? 1 : 0;
+            float h = 0;
              if(v!=0)
             {
                 if(moveDir == Vector3.zero)
                     moveDir = transform.forward;
                 Quaternion targetRot = Quaternion.LookRotation(moveDir);
-                transform.rotation = targetRot;
-                Debug.Log(targetRot.eulerAngles);
-                Debug.Log("aaa :" +　transform.rotation.eulerAngles);
+                Quaternion rot = Quaternion.LookRotation(this.transform.forward);
+                if(rot.eulerAngles.y-45<targetRot.eulerAngles.y &&targetRot.eulerAngles.y<rot.eulerAngles.y+45)
+                {
+                    transform.rotation = targetRot;
+                    a_hook.rm_multi = rollSpeed;
+                }
+                else
+                {
+                    Quaternion Rot = Quaternion.LookRotation(-moveDir);
+                    transform.rotation = Rot;
+                    v=-1;
+                    a_hook.rm_multi = -rollSpeed;
+                }
+                //transform.rotation = targetRot;
                 a_hook.InitForRoll();
-                a_hook.rm_multi = rollSpeed;
+                //a_hook.rm_multi = rollSpeed;
             }
             else
             {
