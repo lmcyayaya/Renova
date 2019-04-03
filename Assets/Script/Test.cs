@@ -12,13 +12,10 @@ namespace SA
         public TimeManager timeManager;
         public StateManager state;
         public AnimatorHook a_hook;
-        // Start is called before the first frame update
         void Start()
         {
             pos = gameObject.transform.position;
         }
-
-        // Update is called once per frame
         void Update()
         {
             timer+=Time.deltaTime;
@@ -46,9 +43,9 @@ namespace SA
             if(col.tag=="Player")
             {
                 a_hook = state.transform.GetComponentInChildren<AnimatorHook>();
-                if(state.invincible && a_hook.rolling)
+                if(state.perfectDodge && a_hook.rolling)
                 {
-                    timeManager.SlowmotionSet(2.0f,0.05f);
+                    timeManager.SlowmotionSet(1f,0.05f);
                 }
             }
         }

@@ -37,8 +37,9 @@ namespace SA
             delta = Time.fixedDeltaTime;
             GetInput();
             UpdateStates();
-            states.FixedTick(delta);
             camManager.Tick(delta);
+            states.FixedTick(delta);
+            
         }
         void Update()
         {
@@ -59,9 +60,9 @@ namespace SA
                 r2_input = true;
 
             l2_axis = Input.GetAxis("L2");
-            l2_input = Input.GetButton("L2");
-            if(l2_axis <0)
-                l2_input = true;
+            l2_input = Input.GetButtonDown("L2");
+            //if(l2_axis <0)
+              //  l2_input = true;
             r1_input = Input.GetButton("R1");
             l1_input = Input.GetButton("L1");
 
@@ -103,13 +104,11 @@ namespace SA
                 {
                     states.aim = true;
                     camManager.aim = states.aim;
-                    states.lockOn = true;
                 }
                 else
                 {
                     states.aim = false;
                     camManager.aim = states.aim;
-                    states.lockOn = false;
                 }
                 
             }
@@ -117,7 +116,6 @@ namespace SA
             {
                 states.aim = false;
                 camManager.aim = states.aim;
-                states.lockOn = false;
             }
             if(Input.GetButtonDown("L1"))
             {
@@ -125,21 +123,11 @@ namespace SA
             }
             else if(Input.GetButtonUp("L1"))
             {
-                camManager.lockonTarget = null;
+                camManager.lockonTarget = states.lockonTarget;
             }
-            //
 
-
-
-            /* if(l2_input)
-            {
-                states.isTwoHanded = !states.isTwoHanded;
-                states.HandleTwoHanded();
-            }*/
             if(rightAxis_down)
             {
-
-
                 states.lockOn = !states.lockOn;
                 if(states.lockonTarget ==null)
                 {
@@ -155,6 +143,7 @@ namespace SA
                         }
                     }
                     states.lockonTarget = target.GetComponent<EnemyTarget>();
+
                 }
                 else
                 {

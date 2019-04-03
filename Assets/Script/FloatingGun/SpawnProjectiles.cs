@@ -38,6 +38,7 @@ public class SpawnProjectiles : MonoBehaviour
             if(rotateGun!=null)
             {
                 vfx.transform.localRotation = rotateGun.GetRotation();
+                vfx.GetComponent<BulletMove>().dir = vfx.transform.forward;
             }
         }
         else

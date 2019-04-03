@@ -20,7 +20,8 @@ namespace SA
         public float rotateSpeed = 5;
         public float toGround = 0.5f;
         public float rollSpeed = 1;
-        public float invincibleTime = 0.15f;
+        public float invincibleTime = 0.3f;
+        public float perfectDodgeTime = 0.16f;
         float timer;
 
         [Header("States")]
@@ -32,6 +33,7 @@ namespace SA
         public bool isTwoHanded;
         public bool aim;
         public bool invincible;
+        public bool perfectDodge;
 
         [Header("Other")]
         public EnemyTarget lockonTarget;
@@ -92,7 +94,8 @@ namespace SA
             anim.applyRootMotion = false;
         }
         public void FixedTick(float d)
-        {
+        {   
+            Debug.Log(perfectDodge);
             delta = d;
             DetectAction();
             if(inAction)
@@ -123,7 +126,12 @@ namespace SA
             HandleLookAndBodyAngle();
             HandleRolls();
         }
-
+        public void Tick(float d)
+        {   
+            HandleInvincibleTime(d);
+            onGround = OnGround();
+            anim.SetBool("onGround",onGround);
+        }
         public void DetectAction()
         {
 
@@ -148,12 +156,6 @@ namespace SA
             inAction = true;
             anim.CrossFade(targetAnim,0.2f);
             //rb.velocity = Vector3.zero;
-        }
-        public void Tick(float d)
-        {   
-            HandleInvincibleTime(d);
-            onGround = OnGround();
-            anim.SetBool("onGround",onGround);
         }
 
         void HandleRolls()
@@ -191,10 +193,11 @@ namespace SA
             anim.SetFloat("horizontal",h);
             anim.SetFloat("vertical",v);
 
+            perfectDodge = true;
             canMove = false;
             inAction = true;
             invincible = true;
-            invincibleTime = 0.15f;
+            invincibleTime = 0.3f;
             anim.CrossFade("Rolls",0.2f);
             
             
@@ -228,8 +231,6 @@ namespace SA
                 moveSpeed = runSpeed;
             if(onGround)
                 rb.velocity = moveDir * (moveSpeed * moveAmount) ;
-            if(run)
-                lockOn = false;
         }
         void HandleMovementAnimations()
         {
@@ -242,7 +243,14 @@ namespace SA
             Vector3 relativeDir = transform.InverseTransformDirection(moveDir);
             float h = relativeDir.x;
             float v = relativeDir.z;
-
+            if(v<0.6 && v > -0.6)
+            {  
+                v = 0;
+            }
+            else
+            {
+                h =0;
+            }
             anim.SetFloat("horizontal",h,0.2f,delta);
             anim.SetFloat("vertical",v,0.2f,delta);
         }
@@ -275,6 +283,10 @@ namespace SA
             if(!invincible)
                 return;
             timer+=d;
+            if(timer>perfectDodgeTime)
+            {
+                perfectDodge = false;
+            }
             if(timer>invincibleTime)
             {
                 timer = 0;

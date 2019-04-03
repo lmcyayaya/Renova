@@ -35,7 +35,7 @@ public class RotateGun : MonoBehaviour
             }
             else
             {
-                var pos = (pivot.position - cam.transform.position) * maximumLenght;
+                var pos = Camera.main.transform.position+((pivot.position - cam.transform.position) * maximumLenght);
                 RotateToLookDirection(this.gameObject,pos);
             }
             Debug.DrawRay(cam.transform.position,cam.transform.forward*maximumLenght,Color.blue);

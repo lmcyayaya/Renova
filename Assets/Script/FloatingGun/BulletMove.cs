@@ -8,19 +8,22 @@ public class BulletMove : MonoBehaviour
     public float speed;
     public float fireRate;
     private float p_speed;
+    public Vector3 dir;
     private void Awake()
     {
         p_speed = speed;
     }
     void FixedUpdate()
     {
+        
         if(speed!=0)
-            transform.position += transform.forward * (speed*Time.deltaTime);
+            this.GetComponent<Rigidbody>().velocity = dir *speed *Time.deltaTime;
         else
             Debug.Log("No Speed"); 
     }
     private void OnCollisionEnter(Collision col)
     {
+        Debug.Log(col.gameObject.name);
         speed = 0;
         this.GetComponent<Rigidbody>().velocity =Vector3.zero;
         ContactPoint contact = col.contacts[0];
@@ -31,11 +34,13 @@ public class BulletMove : MonoBehaviour
         hitVfx.transform.position = pos;
         hitVfx.rotation = rot;
         StartCoroutine(ObjectPool.ReturnToPool(gameObject,0));
+        
+        
     }
 
     private void OnEnable()
     {
-        ReturnToPool(gameObject,6);
+        ReturnToPool(gameObject,3);
         speed = p_speed;
         this.GetComponent<Rigidbody>().velocity =Vector3.zero;
         

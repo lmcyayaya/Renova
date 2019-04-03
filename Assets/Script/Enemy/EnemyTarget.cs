@@ -25,7 +25,7 @@ namespace SA
         public Transform GetTarget(bool negative =false)
         {
             if(targets.Count ==0)
-                return transform;
+                return this.transform;
 
             int targetIndex = index;
             if(!negative)
