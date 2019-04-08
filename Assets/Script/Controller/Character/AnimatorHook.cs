@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace SA
-{
     public class AnimatorHook : MonoBehaviour
     {
         Animator anim;
@@ -11,6 +9,11 @@ namespace SA
         public bool rolling;
         float roll_t;
         AnimationCurve rollCurve;
+        public Direction dir;
+        public enum Direction
+        {
+            Vertical,Horizontal
+        }
         public void Init(StateManager st)
         {
             states = st;
@@ -56,7 +59,15 @@ namespace SA
                 if(roll_t >1)
                     roll_t = 1;
                 float zValue = rollCurve.Evaluate(roll_t);
-                Vector3 v1 = zValue * Vector3.forward;
+                Vector3 v1;
+                if(dir==Direction.Vertical)
+                {
+                    v1 = zValue * Vector3.forward;
+                }
+                else
+                {
+                    v1 = zValue * Vector3.left;
+                }
                 Vector3 relative = transform.TransformDirection(v1);
                 Vector3 v2 = (relative * rm_multi);
                 states.rb.velocity = v2 + states.rb.velocity.y*Vector3.up;
@@ -64,5 +75,4 @@ namespace SA
             
         }
     }
-}
 

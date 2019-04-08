@@ -6,6 +6,12 @@ TagManager:
   tags:
   - Enemy
   - Bullet
+  - GunDir
+  - GM
+  - Gun
+  - Regular
+  - Desire
+  - Supreme
   layers:
   - Default
   - TransparentFX

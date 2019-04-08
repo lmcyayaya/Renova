@@ -9,8 +9,6 @@ public class ObjectPool : MonoBehaviour
     {
         get {return instance;}
     }
-        
-
     [Header("Seeting")]
     public ObjPoolSetting[] objPool;
 
@@ -40,9 +38,7 @@ public class ObjectPool : MonoBehaviour
                 GameObject newObj = poolInfo[ops.name].AddNewObj();
                 poolObjList.Add(newObj,ops.name);
             }
-
         }
-
     }
 
     public static Transform TakeFormPool(string pool)

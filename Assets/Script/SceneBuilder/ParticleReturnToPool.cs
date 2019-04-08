@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ParticleReturnToPool : MonoBehaviour
 {
-    public float t;
+    float t;
 
     // Start is called before the first frame update
     void Start()

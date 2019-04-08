@@ -79,3 +79,16 @@ public class ObjPoolInfo
         objList[obj] = false;
     }
 }
+
+[Serializable]
+public struct AttackModeData
+{
+    public string modeName;
+    public float ATK;
+    public float SP;
+    public float fireRate;
+    public float DEF;
+    public float EPRecoverySpeed;
+    public float moveSpeed;
+    public float rollSpeed;
+}

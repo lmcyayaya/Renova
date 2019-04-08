@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace SA
-{
     public class CameraShaker : MonoBehaviour
     {
         public float power = 0.2f;
@@ -50,5 +48,5 @@ namespace SA
             cam.transform.localPosition = orginPos;
         }
     }
-}
+
 

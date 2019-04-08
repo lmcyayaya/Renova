@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace SA
-{
     public class CameraManager : MonoBehaviour
     {
         public bool aim;
@@ -101,7 +99,6 @@ namespace SA
             camCol.maxDistance = 6;
             follwSpeeed = 4;
             controllerSpeed = 4;
-            states.walkSpeed = 2;
             crossHair.SetActive(false);
         }
         void AimCameraMove(float d)
@@ -112,7 +109,6 @@ namespace SA
             camCol.maxDistance = 3;
             follwSpeeed = 15;
             controllerSpeed = 2.5f;
-            states.walkSpeed =1;
             crossHair.SetActive(true);
         }
         void HandleRotations(float d,float v,float h, float targetSpeed)
@@ -160,4 +156,3 @@ namespace SA
         }
     }
 
-}

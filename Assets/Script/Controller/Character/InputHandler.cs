@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace SA
-{
     public class InputHandler : MonoBehaviour
     {
         public float vertical;
@@ -11,6 +9,10 @@ namespace SA
         public bool x_input;
         public bool s_input;
         public bool t_input;
+        public bool up_input;
+        public bool down_input;
+        public bool left_input;
+        public bool right_input;
 
         public bool r1_input;
         public bool l1_input;
@@ -18,19 +20,26 @@ namespace SA
         public bool l2_input;
         public float r2_axis;
         public float l2_axis;
-
+        public float arrowVertical;
+        public float arrowHorizontal;
         public bool leftAxis_down;
         public bool rightAxis_down;
         public float delta;
+        private bool buttonDown;
         StateManager states;
         CameraManager camManager;
+        BaseData baseData;
         void Start()
         {
+            baseData = BaseData.Instance;
+            baseData.Init(this);
+            
             states = GetComponent<StateManager>();
-            states.Init();
+            states.Init(baseData);
 
             camManager = CameraManager.singleton;
             camManager.Init(states);
+
         }
         void FixedUpdate()
         {
@@ -43,6 +52,8 @@ namespace SA
         }
         void Update()
         {
+            
+            ArrowInput();
             delta = Time.deltaTime;
             states.Tick(delta);
         }
@@ -55,17 +66,14 @@ namespace SA
             s_input = Input.GetButton("S");
             t_input = Input.GetButtonUp("T");
             r2_axis = Input.GetAxis("R2");
-            r2_input = Input.GetButton("R2");
-            if(r2_axis <0)
-                r2_input = true;
-
+            FireInput();
             l2_axis = Input.GetAxis("L2");
             l2_input = Input.GetButtonDown("L2");
             //if(l2_axis <0)
               //  l2_input = true;
             r1_input = Input.GetButton("R1");
             l1_input = Input.GetButton("L1");
-
+            //ArrowInput();
             rightAxis_down = Input.GetButtonUp("R3");
             leftAxis_down = Input.GetButtonUp("L3");
         }
@@ -155,5 +163,54 @@ namespace SA
                 camManager.lockon = states.lockOn;
             }
         }
+
+        void ArrowInput()
+        {
+            arrowVertical = Input.GetAxis("ArrowVertical");
+            if(arrowVertical > 0 && !buttonDown)
+            {
+                up_input = true;
+                down_input = false;
+                buttonDown = true;
+            }
+            else if(arrowVertical<0 && !buttonDown)
+            {
+                up_input = false;
+                down_input = true;
+                buttonDown = true;
+            }
+            else if(arrowVertical==0)
+            {
+                up_input = false;
+                down_input = false;
+                buttonDown = false;
+            }
+            else
+            {
+                up_input = false;
+                down_input = false;
+            }
+            arrowHorizontal = Input.GetAxis("ArrowHorizontal");
+        }
+
+        void FireInput()
+        {
+            if(baseData.atkModeData.modeName=="Regular")
+            {
+                r2_input = Input.GetButton("R2");
+                if(r2_axis <0)
+                    r2_input = true;
+            }
+            else if(baseData.atkModeData.modeName=="Desire")
+            {
+                r2_input = Input.GetButtonDown("R2");
+            }
+            else if (baseData.atkModeData.modeName=="Supreme")
+            {
+                r2_input = Input.GetButton("R2");
+                if(r2_axis <0)
+                    r2_input = true;
+            }
+                
+        }
     }
-}
