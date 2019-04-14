@@ -47,7 +47,7 @@ public class Test : MonoBehaviour
                 StartCoroutine(AIP.AddDodgeImage()) ;
                 StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.3f,0.05f,1.5f));
                 col.GetComponent<StateManager>().model.SetActive(false);
-                //timeManager.SlowmotionSet(1f,0.05f);
+                timeManager.SlowmotionSet(1f,0.05f);
             }
         }
     }

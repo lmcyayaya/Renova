@@ -2,24 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class EnemysDamage : MonoBehaviour
 {
-    ProcessedData processedData;
     private GameObject player;
-    private GameObject gm;
     private Vector3 scale;
     private float distance {get{return Vector3.Distance(this.transform.position,player.transform.position);}}
+    public OverclockLevelManager olManager;
     private void Start()
     {
-        gm = GameObject.FindWithTag("GM");
         player = GameObject.FindWithTag("Player");
-        processedData = gm.GetComponent<ProcessedData>();
     }
     private void OnCollisionEnter(Collision col)
     {
         if(col.collider.tag =="Bullet")
         {
+            olManager.olCharge+=5;
             var damageText = ObjectPool.TakeFormPool("DamageText");
             ContactPoint contact = col.contacts[0];
             damageText.transform.position = contact.point;

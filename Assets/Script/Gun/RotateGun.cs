@@ -5,19 +5,19 @@ using UnityEngine;
 public class RotateGun : MonoBehaviour
 {
     Camera cam;
-    StateManager states;
     public float maximumLenght;
     public Transform target;
-    public Transform pivot;
+    public Transform[] aimStateTarget;
     public float follwSpeeed =9.0f;
-
-    private Ray rayLookAt;
-    private Vector3 pos;
+    public LayerMask layerMask;
+    public GameObject crossHair;
+    
     private Vector3 direction;
     private Quaternion rotation;
+    float counter;
+    float dis;
     void Start()
     {
-        states = target.parent.GetComponent<StateManager>();
         cam = Camera.main;
     }
     void Update()
@@ -25,25 +25,26 @@ public class RotateGun : MonoBehaviour
         
         if(cam!=null)
         {
+            Ray ray = cam.ScreenPointToRay(crossHair.transform.position);
             RaycastHit hit;
-            //var mousePos = Input.mousePosition;
-            //rayLookAt = cam.ScreenPointToRay(mousePos);
-            if(Physics.Raycast(cam.transform.position,cam.transform.forward,out hit,maximumLenght,11))
+            if(Physics.Raycast(ray,out hit,maximumLenght,layerMask))
             {
                 RotateToLookDirection(this.gameObject,hit.point);
+                
             }
             else
             {
-                var pos = Camera.main.transform.position+ cam.transform.forward* 30;
+                var pos = ray.origin +(ray.direction*500);
                 RotateToLookDirection(this.gameObject,pos);
             }
-            Debug.DrawRay(cam.transform.position,cam.transform.forward*maximumLenght,Color.blue);
+            Debug.DrawRay(ray.origin, ray.direction * maximumLenght, Color.yellow);
         }
         
     }
     private void FixedUpdate()
     {
         FollowTarget(Time.deltaTime);
+        FollowTargerFloat();
     }
 
     void RotateToLookDirection(GameObject obj,Vector3 destination)
@@ -59,7 +60,29 @@ public class RotateGun : MonoBehaviour
     void FollowTarget(float d)
     {
         float speed = d * follwSpeeed;
-        Vector3 targetPostion = Vector3.Lerp(transform.position,target.transform.position,speed);
+        Vector3 targetPostion=Vector3.zero;
+        if(!Input.GetButton("L1"))
+            targetPostion = Vector3.Lerp(transform.position,target.position,speed);
+        else if(Input.GetButton("R2"))
+        {
+            if(dis>=0)
+                targetPostion = Vector3.Lerp(transform.position,aimStateTarget[0].position,speed);
+            else
+                targetPostion = Vector3.Lerp(transform.position,aimStateTarget[1].position,speed);
+            
+        }
+        else
+            targetPostion = Vector3.Lerp(transform.position,aimStateTarget[0].position,speed);
         transform.position = targetPostion;
+    }
+    void FollowTargerFloat()
+    {
+        float c_h = Input.GetAxis("RightAxis X");
+        dis +=c_h*Time.deltaTime;
+        if(dis>0.5)
+            dis = 0.5f;
+        else if(dis<-0.5)
+            dis = -0.5f;
+        target.transform.localPosition = new Vector3(dis,target.transform.localPosition.y,target.transform.localPosition.z);
     }
 }

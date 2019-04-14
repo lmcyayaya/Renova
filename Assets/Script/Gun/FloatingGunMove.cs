@@ -6,7 +6,7 @@ public class FloatingGunMove : MonoBehaviour
 {
     Camera cam;
     public GameObject target;
-    public float follwSpeeed =9.0f;
+    public float follwSpeeed ;
 
     void Start()
     {

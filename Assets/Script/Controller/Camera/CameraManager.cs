@@ -96,8 +96,8 @@ using UnityEngine;
             float speed = d * follwSpeeed;
             Vector3 targetPostion = Vector3.Lerp(transform.position,target.transform.position,speed);
             transform.position = targetPostion;
-            camCol.maxDistance = 6;
-            follwSpeeed = 4;
+            camCol.maxDistance = 8;
+            follwSpeeed = 6;
             controllerSpeed = 4;
             crossHair.SetActive(false);
         }
@@ -107,8 +107,8 @@ using UnityEngine;
             Vector3 targetPostion = Vector3.Lerp(transform.position,aimPivot.transform.position,speed);
             transform.position = targetPostion;
             camCol.maxDistance = 3;
-            follwSpeeed = 15;
-            controllerSpeed = 2.5f;
+            follwSpeeed = 100;
+            controllerSpeed = 2f;
             crossHair.SetActive(true);
         }
         void HandleRotations(float d,float v,float h, float targetSpeed)

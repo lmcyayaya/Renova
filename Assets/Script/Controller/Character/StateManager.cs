@@ -2,21 +2,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 public class StateManager : MonoBehaviour
 {
+    public Vector3 velocity;
     [Header("Init")]
     public GameObject activeModel;
     public GameObject model;
-    public BaseData baseData;
-    public ProcessedData processedData;
+    public SpawnProjectiles spawnProjectiles;
+    public Text dodgeCountText;
+    private int dodgeCount = 0;
 
     [Header("Inputs")]
     public float vertical;
     public float horizontal;
-    public bool r1,r2,l1,l2,O,X,S,T;
+    public bool r1,r2,l1,l2,O,X,S,T,jump2;
 
+    //[Header("States")]
+    public bool onGround
+    {
+        get
+        {
+            Vector3 orgin = transform.position + (Vector3.up * BaseData.Instance.toGround);
+            Vector3 dir = -Vector3.up;
+            float dis = BaseData.Instance.toGround+0.3f;
+            if(Physics.Raycast(orgin,dir,out hit,dis,ignoreLayers))
+            {
+                transform.position = hit.point;
+                rb.velocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
+                jump2 = false;
+                return true;
+            }
+            else
+                return false;
+        }
+    }
     [Header("States")]
-    public bool onGround;
     public bool run;
     public bool lockOn;
     public bool inAction;
@@ -32,26 +53,28 @@ public class StateManager : MonoBehaviour
     public float moveAmount;
     [HideInInspector]
     public float delta;
+    public Vector3 onSlopeMoveDir;
     //[HideInInspector]
     public Vector3 moveDir;
-
+    public float gravityScale;
+    public GameObject effectPrefab;
     [HideInInspector]
     public AnimatorHook a_hook;
     [HideInInspector]
     public Animator anim;
     [HideInInspector]
     public Rigidbody rb;
-    [HideInInspector]
     public LayerMask ignoreLayers;
     [HideInInspector]
-    RaycastHit hit;
-    float _actionDelay;
-    float timer;
-    public void Init(BaseData data)
+    private RaycastHit hit;
+    private float _actionDelay;
+    private float timer;
+    public void Init()
     {
         SetupAnimator();
-        baseData = data;
-        processedData = ProcessedData.Instance;
+        
+        spawnProjectiles.Init(this);
+
         rb = GetComponent<Rigidbody>();
         rb.angularDrag = 999;
         rb.drag = 4;
@@ -60,7 +83,7 @@ public class StateManager : MonoBehaviour
         a_hook = activeModel.AddComponent<AnimatorHook>();
         a_hook.Init(this);
 
-        gameObject.layer = 9;
+        gameObject.layer = 0;
         ignoreLayers = ~(1<<10);
         anim.SetBool("onGround",true);
     }
@@ -85,9 +108,18 @@ public class StateManager : MonoBehaviour
     }
     public void FixedTick(float d)
     {
-        ATKMode = baseData.atkModeData.modeName;
+        ATKMode = BaseData.Instance.atkModeData.modeName;
         delta = d;
-        //DetectAction();
+        HandleGravity(d);
+        HandleLockRotationAnimations(moveDir);
+        HandleRun();
+        if(jump2 && Input.GetButton("X") && rb.velocity.y<0)
+        {
+            gravityScale = 1;
+        }else
+        {
+            gravityScale = 5;
+        }
         if(inAction)
         {
             anim.applyRootMotion = true;
@@ -103,27 +135,22 @@ public class StateManager : MonoBehaviour
             }
         }
         canMove = anim.GetBool("canMove");    
-
         if(!canMove)
             return;
         a_hook.CloseRoll();
-        
-    
         anim.applyRootMotion = false;
-
         rb.drag = (moveAmount > 0 || onGround == false) ? 0:4;
         HandleMovement();
         HandleLookAndBodyAngle();
-        HandleRolls();
+        HandleRoll();
+        //HandleRolls();
         HandleJump();
     }
     public void Tick(float d)
     {   
+        velocity = rb.velocity;
         HandleInvincibleTime(d);
-        onGround = OnGround();
         anim.SetBool("onGround",onGround);
-        // if(!onGround)
-        //      rb.velocity +=new Vector3(0,-9.8f*d,0);
         anim.SetFloat("gravity",this.gameObject.GetComponent<Rigidbody>().velocity.y);
     }
     public void DetectAction()
@@ -151,12 +178,24 @@ public class StateManager : MonoBehaviour
         //rb.velocity = Vector3.zero;
     }
 
+    void HandleRun()
+    {
+        if(!run)
+            return;
+        if(moveAmount==0)
+            run = false;
+    }
     void HandleJump()
     {
-        if(!X || !onGround)
+        if(!X)
             return;
-        rb.velocity = new Vector3(rb.velocity.x,rb.velocity.y+baseData.jumpSpeed,rb.velocity.z);
-        anim.CrossFade("Jump",0.2f);
+        if(!jump2)
+        {
+            if(!onGround)
+                jump2 =true; 
+            rb.velocity = new Vector3(rb.velocity.x,BaseData.Instance.jumpSpeed,rb.velocity.z);
+            anim.CrossFade("Jump",0.2f);
+        }
     }
     void HandleRolls()
     {
@@ -176,7 +215,7 @@ public class StateManager : MonoBehaviour
                 transform.rotation = targetRot;
                 a_hook.dir = AnimatorHook.Direction.Vertical;
                 v = 1;
-                a_hook.rm_multi = baseData.rollSpeed;
+                a_hook.rm_multi = BaseData.Instance.rollSpeed;
             }
             //左側翻滾
             else if(rot.eulerAngles.y-90<targetRot.eulerAngles.y &&targetRot.eulerAngles.y<rot.eulerAngles.y-45)
@@ -186,7 +225,7 @@ public class StateManager : MonoBehaviour
                 a_hook.dir = AnimatorHook.Direction.Horizontal;
                 v = 0;
                 h = -1;
-                a_hook.rm_multi = baseData.rollSpeed;
+                a_hook.rm_multi = BaseData.Instance.rollSpeed;
             }
             //右側翻滾
             else if(rot.eulerAngles.y+45<targetRot.eulerAngles.y &&targetRot.eulerAngles.y<rot.eulerAngles.y+90)
@@ -196,7 +235,7 @@ public class StateManager : MonoBehaviour
                     a_hook.dir = AnimatorHook.Direction.Horizontal;
                 v = 0;
                 h = 1;
-                a_hook.rm_multi = -baseData.rollSpeed;
+                a_hook.rm_multi = -BaseData.Instance.rollSpeed;
             }
             //背向翻滾
             else
@@ -205,7 +244,7 @@ public class StateManager : MonoBehaviour
                 transform.rotation = Rot;
                 a_hook.dir = AnimatorHook.Direction.Vertical;
                 v = -1;
-                a_hook.rm_multi = -baseData.rollSpeed;
+                a_hook.rm_multi = -BaseData.Instance.rollSpeed;
             }
             a_hook.InitForRoll();
         }
@@ -216,10 +255,51 @@ public class StateManager : MonoBehaviour
         anim.SetFloat("horizontal",h);
         anim.SetFloat("vertical",v);
 
+        //model.SetActive(false);
+        model.transform.localScale=new Vector3(0.2f,0.2f,0.2f);
+        var effect = Instantiate(effectPrefab,model.transform.position,Quaternion.identity);
+        effect.transform.position = model.transform.position;
+        Destroy(effect,effect.transform.GetChild(0).GetComponent<ParticleSystem>().main.duration);
+        StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.5f,0.1f,2f));
         perfectDodge = true;
         canMove = false;
         inAction = true;
         invincible = true;
+        dodgeCount+=1;
+        dodgeCountText.text = "Dodge:"+dodgeCount.ToString();
+        anim.CrossFade("Rolls",0.2f);
+    }
+
+
+
+
+    void HandleRoll()
+    {
+        if(!l2 )
+            return;
+        float v = (moveAmount>0.3)?1 :0;
+        float h = horizontal;
+        a_hook.dir = AnimatorHook.Direction.Vertical;
+        a_hook.rm_multi = BaseData.Instance.rollSpeed;
+        a_hook.InitForRoll();
+        if(v==0)
+            v=1;
+        anim.SetFloat("horizontal",h);
+        anim.SetFloat("vertical",v);
+
+        //model.SetActive(false);
+        //model.transform.localScale=new Vector3(0.2f,0.2f,0.2f);
+        var effect = Instantiate(effectPrefab,model.transform.position,Quaternion.identity);
+        effect.transform.position = model.transform.position;
+        Destroy(effect,effect.transform.GetChild(0).GetComponent<ParticleSystem>().main.duration);
+        StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.5f,0.1f,2f));
+        perfectDodge = true;
+        canMove = false;
+        inAction = true;
+        invincible = true;
+        run = true;
+        dodgeCount+=1;
+        dodgeCountText.text = "Dodge:"+dodgeCount.ToString();
         anim.CrossFade("Rolls",0.2f);
     }
     void HandleLookAndBodyAngle()
@@ -229,81 +309,55 @@ public class StateManager : MonoBehaviour
             : (lockOn==false) ? moveDir 
                 : (lockonTransform !=null) ? lockonTransform.transform.position - this.transform.position
                     : moveDir;
-            targetDir.y = 0;
-            if(targetDir == Vector3.zero)
-                targetDir = Vector3.forward;
-            Quaternion tr = Quaternion.LookRotation(targetDir);
-            Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * baseData.rotateSpeed);
-            transform.rotation = targetRotation;
+        targetDir.y = 0;
+        if(targetDir == Vector3.zero)
+            targetDir = Vector3.forward;
+        Quaternion tr = Quaternion.LookRotation(targetDir);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * BaseData.Instance.rotateSpeed);
+        transform.rotation = targetRotation;
 
-            anim.SetBool("lockon",lockOn);
-
-            if(!lockOn &&!aim)
-                HandleMovementAnimations();
-            else
-                HandleLockOnAnimations(moveDir);
+        anim.SetBool("lockon",lockOn);
+        if(!lockOn &&!aim)
+            HandleMovementAnimations();
+        else
+            HandleLockRotationAnimations(moveDir);
     }
     void HandleMovement()
     {
-        if(onGround)
-            rb.velocity = moveDir * (processedData.moveSpeed * moveAmount) ;
+        rb.velocity = moveDir * (ProcessedData.Instance.moveSpeed * moveAmount) + new Vector3(0,rb.velocity.y,0) ;
     }
-    void HandleMovementAnimations()
+    void HandleGravity(float d)
     {
-        anim.SetBool("run",run);
-        anim.SetFloat("vertical",moveAmount,0.4f,delta);
-    }
-
-    void HandleLockOnAnimations(Vector3 moveDir)
-    {
-        Vector3 relativeDir = transform.InverseTransformDirection(moveDir);
-        float h = relativeDir.x;
-        float v = relativeDir.z;
-        if(v<0.6 && v > -0.6)
-        {  
-            v = 0;
+        if(a_hook.rolling)
+        {
+            rb.useGravity = false;
+            rb.velocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
         }
         else
         {
-            h =0;
+            rb.useGravity = true;
+            rb.velocity = new Vector3(rb.velocity.x,rb.velocity.y-(9.8f*d*gravityScale),rb.velocity.z);
         }
-        anim.SetFloat("horizontal",h,0.2f,delta);
-        anim.SetFloat("vertical",v,0.2f,delta);
+            
     }
 
-    public bool OnGround()
-    {
-        bool r = false;
-
-        Vector3 orgin = transform.position + (Vector3.up * baseData.toGround);
-        Vector3 dir = -Vector3.up;
-        float dis = baseData.toGround;//+ 0.3f;
-        Debug.DrawRay(orgin,dir * dis,Color.green);
-        
-        if(Physics.Raycast(orgin,dir,out hit,dis,ignoreLayers))
-        {
-            r = true;
-            Vector3 targetPosition = hit.point;
-            transform.position = targetPosition;
-        }
-        return r; 
-    }
     public void HandleInvincibleTime(float d)
     {
         if(!invincible)
             return;
         timer+=d;
-        if(timer>baseData.perfectDodgeTime)
+        model.transform.localScale = Vector3.MoveTowards(model.transform.localScale,new Vector3(1,1,1),0.1f);
+        if(timer>BaseData.Instance.perfectDodgeTime)
         {
             perfectDodge = false;
         }
-        if(timer>baseData.invincibleTime)
+        if(timer>BaseData.Instance.invincibleTime)
         {
             timer = 0;
             invincible = false;
             if(!model.activeSelf)
             {
-                model.SetActive(true);
+                //model.SetActive(true);
             }
         }
     }
@@ -317,4 +371,19 @@ public class StateManager : MonoBehaviour
         anim.CrossFade("damage_1",0.2f);
         StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.2f,0.05f,1.5f));
     }
+
+    void HandleMovementAnimations()
+    {
+        anim.SetBool("run",run);
+        anim.SetFloat("vertical",moveAmount,0.4f,delta);
+    }
+    void HandleLockRotationAnimations(Vector3 moveDir)
+    {
+        Vector3 relativeDir = transform.InverseTransformDirection(moveDir);
+        float h = relativeDir.x;
+        float v = relativeDir.z;
+        anim.SetFloat("horizontal",h);
+        anim.SetFloat("vertical",v);
+    }
+
 }

@@ -6,7 +6,6 @@ using UnityEngine;
         float slowdownFactor = 0.05f;
         float slowdownLength = 2f;
         bool beSlowmotion = false;
-        float timer;
         void Update()
         {
             

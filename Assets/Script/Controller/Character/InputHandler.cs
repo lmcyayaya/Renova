@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
     public class InputHandler : MonoBehaviour
     {
         public float vertical;
@@ -18,24 +19,25 @@ using UnityEngine;
         public bool l1_input;
         public bool r2_input;
         public bool l2_input;
+        public bool r3_input;
+        public bool l3_input;
         public float r2_axis;
         public float l2_axis;
         public float arrowVertical;
         public float arrowHorizontal;
-        public bool leftAxis_down;
-        public bool rightAxis_down;
+
         public float delta;
-        private bool buttonDown;
-        StateManager states;
+        private bool arrowButtonDown;
+        private bool rollButtonDown;
+        private bool jumpButtonDown;
+        private bool lockOnButtonDown;
+        public StateManager states;
         CameraManager camManager;
-        BaseData baseData;
         void Start()
         {
-            baseData = BaseData.Instance;
-            baseData.Init(this);
-            
+            BaseData.Instance.Init(this);
             states = GetComponent<StateManager>();
-            states.Init(baseData);
+            states.Init();
 
             camManager = CameraManager.singleton;
             camManager.Init(states);
@@ -52,7 +54,6 @@ using UnityEngine;
         }
         void Update()
         {
-            
             ArrowInput();
             delta = Time.deltaTime;
             states.Tick(delta);
@@ -62,27 +63,21 @@ using UnityEngine;
             vertical = Input.GetAxis("Vertical");
             horizontal = Input.GetAxis("Horizontal");
             o_input = Input.GetButton("O");
-            x_input = Input.GetButton("X");
             s_input = Input.GetButton("S");
             t_input = Input.GetButtonUp("T");
-            r2_axis = Input.GetAxis("R2");
-            FireInput();
-            l2_axis = Input.GetAxis("L2");
-            l2_input = Input.GetButtonDown("L2");
-            //if(l2_axis <0)
-              //  l2_input = true;
             r1_input = Input.GetButton("R1");
             l1_input = Input.GetButton("L1");
-            //ArrowInput();
-            rightAxis_down = Input.GetButtonUp("R3");
-            leftAxis_down = Input.GetButtonUp("L3");
+            l3_input = Input.GetButton("L3");
+
+            RollInput();
+            FireInput();
+            JumpInput();
         }
         void UpdateStates()
         {
             
             states.horizontal = horizontal;
             states.vertical = vertical;
-
             states.r1 = r1_input;
             states.r2 = r2_input;
             states.l1 = l1_input;
@@ -96,32 +91,80 @@ using UnityEngine;
             states.moveDir = (v+h).normalized;
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             states.moveAmount = Mathf.Clamp01(m);
-            
-            if(r1_input)
+            AimInput();
+            LockOnInput();
+        }
+
+        void ArrowInput()
+        {
+            arrowVertical = Input.GetAxis("ArrowVertical");
+            if(arrowVertical > 0 && !arrowButtonDown)
             {
-                states.run = (states.moveAmount > 0);
+                up_input = true;
+                down_input = false;
+                arrowButtonDown = true;
+            }
+            else if(arrowVertical<0 && !arrowButtonDown)
+            {
+                up_input = false;
+                down_input = true;
+                arrowButtonDown = true;
+            }
+            else if(arrowVertical==0)
+            {
+                up_input = false;
+                down_input = false;
+                arrowButtonDown = false;
             }
             else
             {
-                states.run = false;
+                up_input = false;
+                down_input = false;
             }
+            arrowHorizontal = Input.GetAxis("ArrowHorizontal");
+        }
+        void FireInput()
+        {
+            r2_axis = Input.GetAxis("R2");
+            if(BaseData.Instance.atkModeData.modeName=="Regular")
+            {
+                r2_input = Input.GetButton("R2");
+                if(r2_axis <0)
+                    r2_input = true;
+            }
+            else if(BaseData.Instance.atkModeData.modeName=="Desire")
+            {
+                r2_input = Input.GetButtonDown("R2");
+            }
+            else if (BaseData.Instance.atkModeData.modeName=="Supreme")
+            {
+                r2_input = Input.GetButton("R2");
+                if(r2_axis <0)
+                    r2_input = true;
+            }
+                
+        }
+        void AimInput()
+        {
             //瞄準
             if(l1_input)
             {
                 if(states.canMove)
                 {
+                    states.lockOn = true;
                     states.aim = true;
                     camManager.aim = states.aim;
                 }
                 else
                 {
+                    states.lockOn = false;
                     states.aim = false;
                     camManager.aim = states.aim;
                 }
-                
             }
             else
             {
+                states.lockOn = false;
                 states.aim = false;
                 camManager.aim = states.aim;
             }
@@ -134,7 +177,65 @@ using UnityEngine;
                 camManager.lockonTarget = states.lockonTarget;
             }
 
-            if(rightAxis_down)
+        }
+        void RollInput()
+        {
+            //l2_axis = Input.GetAxis("L2");
+            //l2_input = Input.GetButton("L2");
+            // if(l2_axis <0)
+            //     l2_input = true;
+            if(Input.GetAxis("L2") < 0 && !rollButtonDown)
+            {
+                rollButtonDown = true;
+                l2_input = true;
+            }
+            else if(Input.GetAxis("L2") >=0 && rollButtonDown)
+            {
+                rollButtonDown = false;
+                l2_input = false;
+            }
+            else
+            {
+                l2_input = false;
+            }
+        }
+        void JumpInput()
+        {
+            if(Input.GetButton("X") && !jumpButtonDown)
+            {
+                jumpButtonDown = true;
+                x_input = true;
+            }
+            else if(!Input.GetButton("X") && jumpButtonDown)
+            {
+                jumpButtonDown = false;
+                x_input = false;
+            }
+            else
+            {
+                x_input = false;
+            }
+        }
+        void LockOnInput()
+        {
+            if(Input.GetButton("R3") && !lockOnButtonDown)
+            {
+                lockOnButtonDown = true;
+                r3_input = true;
+            }
+            else if(!Input.GetButton("R3") && lockOnButtonDown)
+            {
+                lockOnButtonDown = false;
+                r3_input = false;
+            }
+            else
+            {
+                r3_input = false;
+            }
+
+            if(!r3_input)
+                return;
+            else
             {
                 states.lockOn = !states.lockOn;
                 if(states.lockonTarget ==null)
@@ -156,61 +257,10 @@ using UnityEngine;
                 else
                 {
                     states.lockonTarget =null;
-
                 }
                 camManager.lockonTarget = states.lockonTarget;
                 states.lockonTransform = camManager.lockonTransform;
                 camManager.lockon = states.lockOn;
             }
-        }
-
-        void ArrowInput()
-        {
-            arrowVertical = Input.GetAxis("ArrowVertical");
-            if(arrowVertical > 0 && !buttonDown)
-            {
-                up_input = true;
-                down_input = false;
-                buttonDown = true;
-            }
-            else if(arrowVertical<0 && !buttonDown)
-            {
-                up_input = false;
-                down_input = true;
-                buttonDown = true;
-            }
-            else if(arrowVertical==0)
-            {
-                up_input = false;
-                down_input = false;
-                buttonDown = false;
-            }
-            else
-            {
-                up_input = false;
-                down_input = false;
-            }
-            arrowHorizontal = Input.GetAxis("ArrowHorizontal");
-        }
-
-        void FireInput()
-        {
-            if(baseData.atkModeData.modeName=="Regular")
-            {
-                r2_input = Input.GetButton("R2");
-                if(r2_axis <0)
-                    r2_input = true;
-            }
-            else if(baseData.atkModeData.modeName=="Desire")
-            {
-                r2_input = Input.GetButtonDown("R2");
-            }
-            else if (baseData.atkModeData.modeName=="Supreme")
-            {
-                r2_input = Input.GetButton("R2");
-                if(r2_axis <0)
-                    r2_input = true;
-            }
-                
         }
     }

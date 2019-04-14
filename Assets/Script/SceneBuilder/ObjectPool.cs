@@ -11,7 +11,7 @@ public class ObjectPool : MonoBehaviour
     }
     [Header("Seeting")]
     public ObjPoolSetting[] objPool;
-
+    
     //local use
     private static Dictionary<GameObject, string> poolObjList = new Dictionary<GameObject, string>();
     private static Dictionary<string, ObjPoolInfo> poolInfo = new Dictionary<string, ObjPoolInfo>();

@@ -79,6 +79,7 @@ MonoBehaviour:
   fireRate: 1
   BulletMode: Supreme
   dir: {x: 0, y: 0, z: 0}
+  Damage: 0
 --- !u!1 &1233283920887408
 GameObject:
   m_ObjectHideFlags: 0

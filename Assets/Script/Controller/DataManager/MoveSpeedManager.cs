@@ -6,16 +6,16 @@ public class MoveSpeedManager : MonoBehaviour
 {
     private StateManager states;
     private BaseData baseData;
-    private ProcessedData processedData;
-    public void Init(GameObject player)
+    //private ProcessedData processedData;
+    public void Init(StateManager stat)
     {
-        baseData = this.gameObject.GetComponent<BaseData>();
-        processedData = this.gameObject.GetComponent<ProcessedData>();
-        states = player.GetComponent<StateManager>();
+        baseData = gameObject.GetComponent<BaseData>();
+        //processedData = gameObject.GetComponent<ProcessedData>();
+        states = stat;
     }
     void Update()
     {
-        processedData.moveSpeed= BaseSpeed() * baseData.atkModeData.moveSpeed ;
+        ProcessedData.Instance.moveSpeed= BaseSpeed() * baseData.atkModeData.moveSpeed ;
     }
     private float BaseSpeed()
     {

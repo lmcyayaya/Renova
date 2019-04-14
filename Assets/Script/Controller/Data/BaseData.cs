@@ -10,7 +10,7 @@ public class BaseData : MonoBehaviour
     {
         get {return instance;}
     }
-    GameObject player;
+    private GameObject player;
     private MoveSpeedManager msManager;
     private ATKManager atkManager;
     private InputHandler inputHandler;
@@ -36,39 +36,44 @@ public class BaseData : MonoBehaviour
     public float perfectDodgeTime;
 
     public bool changeMode;
-    
+    private float changeTimer;
+    private float changeModeCoolTime =1.5f;
     void Awake()
     {
-        instance =this;
+        instance = this;
     }
     public void Init(InputHandler input)
     {
         player = GameObject.FindGameObjectWithTag("Player");
         inputHandler = input;
         msManager = this.gameObject.GetComponent<MoveSpeedManager>();
-        msManager.Init(player);
+        msManager.Init(input.states);
         atkManager = this.gameObject.GetComponent<ATKManager>();
         atkManager.Init();
-
     }
     private void Update()
     {
         ChangeAttackMode();
     }
-    void ChangeAttackMode()
+    private void ChangeAttackMode()
     {
         changeMode = inputHandler.up_input ||inputHandler.down_input;
-        if(inputHandler.up_input)
+        changeTimer += Time.deltaTime;
+        if(!changeMode)
+            return;
+        if(inputHandler.up_input && changeTimer > changeModeCoolTime)
         {
-            order+=1;
-            if(order>2)
-                order=0;
+            order += 1;
+            if(order > 2)
+                order = 0;
+            changeTimer = 0;
         }
-        else if(inputHandler.down_input)
+        else if(inputHandler.down_input && changeTimer > changeModeCoolTime)
         {
-            order-=1;
-            if(order<0)
-                order=2;
+            order -= 1;
+            if(order < 0)
+                order = 2;
+            changeTimer = 0;
         }
     }
 }

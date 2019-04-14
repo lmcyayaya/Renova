@@ -58,19 +58,20 @@ using UnityEngine;
                 roll_t +=states.delta/0.5f;
                 if(roll_t >1)
                     roll_t = 1;
-                float zValue = rollCurve.Evaluate(roll_t);
-                Vector3 v1;
-                if(dir==Direction.Vertical)
+                //float zValue = rollCurve.Evaluate(roll_t);
+                if(states.moveDir.normalized!=Vector3.zero)
                 {
-                    v1 = zValue * Vector3.forward;
+                    Vector3 relative = states.moveDir.normalized;
+                    Vector3 v2 = (relative * rm_multi);
+                    states.rb.velocity = v2 + states.rb.velocity.y*Vector3.up;
                 }
                 else
                 {
-                    v1 = zValue * Vector3.left;
+                    Vector3 relative = Vector3.forward.normalized;
+                    Vector3 v2 = (relative * rm_multi);
+                    states.rb.velocity = v2 + states.rb.velocity.y*Vector3.up;
                 }
-                Vector3 relative = transform.TransformDirection(v1);
-                Vector3 v2 = (relative * rm_multi);
-                states.rb.velocity = v2 + states.rb.velocity.y*Vector3.up;
+                
             }
             
         }

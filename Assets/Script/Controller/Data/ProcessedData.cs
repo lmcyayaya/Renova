@@ -15,14 +15,4 @@ public class ProcessedData : MonoBehaviour
     {
         instance =this;
     }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
