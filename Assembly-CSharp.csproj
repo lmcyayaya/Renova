@@ -124,6 +124,7 @@
      <Compile Include="Assets\Script\Enemy\EnemysDamage.cs" />
      <Compile Include="Assets\Script\Enemy\EnemyTarget.cs" />
      <Compile Include="Assets\Script\Gun\BulletMove.cs" />
+     <Compile Include="Assets\Script\Gun\FloatingGunCollision.cs" />
      <Compile Include="Assets\Script\Gun\FloatingGunMove.cs" />
      <Compile Include="Assets\Script\Gun\RotateGun.cs" />
      <Compile Include="Assets\Script\Gun\SpawnProjectiles.cs" />

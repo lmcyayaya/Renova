@@ -23,9 +23,9 @@ TagManager:
   - 
   - PostProcessing
   - Bullet
-  - 
-  - 
-  - 
+  - Wall
+  - Enemy
+  - Player
   - 
   - 
   - 

@@ -22,7 +22,7 @@ public class BulletMove : MonoBehaviour
     {
         
         if(speed!=0)
-            this.GetComponent<Rigidbody>().velocity = dir *speed *Time.deltaTime;
+            this.GetComponent<Rigidbody>().velocity = dir *speed;
         else
             Debug.Log("No Speed"); 
     }

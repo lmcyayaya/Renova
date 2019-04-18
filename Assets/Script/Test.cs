@@ -11,6 +11,7 @@ public class Test : MonoBehaviour
     public StateManager state;
     public AnimatorHook a_hook;
     public AfterImagePool AIP;
+    public Animator anim;
     void Start()
     {
         pos = gameObject.transform.position;
@@ -46,7 +47,7 @@ public class Test : MonoBehaviour
             {
                 StartCoroutine(AIP.AddDodgeImage()) ;
                 StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.3f,0.05f,1.5f));
-                col.GetComponent<StateManager>().model.SetActive(false);
+                state.model.SetActive(false);
                 timeManager.SlowmotionSet(1f,0.05f);
             }
         }

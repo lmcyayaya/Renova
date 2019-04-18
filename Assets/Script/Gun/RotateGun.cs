@@ -61,8 +61,8 @@ public class RotateGun : MonoBehaviour
     {
         float speed = d * follwSpeeed;
         Vector3 targetPostion=Vector3.zero;
-        if(!Input.GetButton("L1"))
-            targetPostion = Vector3.Lerp(transform.position,target.position,speed);
+        if(Input.GetButton("L1"))
+            targetPostion = Vector3.Lerp(transform.position,aimStateTarget[0].position,speed);
         else if(Input.GetButton("R2"))
         {
             if(dis>=0)
@@ -72,7 +72,7 @@ public class RotateGun : MonoBehaviour
             
         }
         else
-            targetPostion = Vector3.Lerp(transform.position,aimStateTarget[0].position,speed);
+            targetPostion = Vector3.Lerp(transform.position,target.position,speed);
         transform.position = targetPostion;
     }
     void FollowTargerFloat()
