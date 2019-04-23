@@ -35,7 +35,7 @@ public class Test : MonoBehaviour
     {
         if(col.tag=="Player")
         {
-            col.GetComponent<StateManager>().Damage();
+            // col.GetComponent<StateManager>().Damage();
         }
     }
     private void OnTriggerEnter(Collider col)

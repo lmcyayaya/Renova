@@ -157,7 +157,7 @@ ModelImporter:
     400148: Spine
     400150: TongueBack
     400152: TongueTip
-    7400000: _81_a_U1_M_P_PlantNTurn135_Sprint_R_Fb_p135_No_0_PJ_3
+    7400000: Sprint_Pivot_135-L
     9500000: //RootNode
     2186277476908879412: ImportLogs
   externalObjects: {}
@@ -189,7 +189,35 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Sprint_Pivot_135-L
+      takeName: _81_a_U1_M_P_PlantNTurn135_Sprint_R_Fb_p135_No_0_PJ_3
+      firstFrame: 240
+      lastFrame: 280
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 1
   meshes:
     lODScreenPercentages: []

@@ -138,6 +138,7 @@
      <Compile Include="Assets\Script\UI\Enemys\UI_EnemysHPBar.cs" />
      <Compile Include="Assets\Script\UI\UI_ATKMode.cs" />
      <Compile Include="Assets\Script\UI\UI_ChargeTime.cs" />
+     <Compile Include="Assets\Script\UI\UI_Shaker.cs" />
      <Compile Include="Assets\Script\UI\UI_ShootCount.cs" />
      <Compile Include="Assets\VFX\Affter Image\AfterImage.cs" />
      <Compile Include="Assets\VFX\Affter Image\AfterImagePool.cs" />

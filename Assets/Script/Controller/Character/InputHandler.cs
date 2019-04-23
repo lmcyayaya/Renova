@@ -14,23 +14,27 @@ using UnityEngine.UI;
         public bool down_input;
         public bool left_input;
         public bool right_input;
-
         public bool r1_input;
         public bool l1_input;
         public bool r2_input;
         public bool l2_input;
         public bool r3_input;
         public bool l3_input;
+        public bool options_input;
+        public bool pausing;
         public float r2_axis;
         public float l2_axis;
         public float arrowVertical;
         public float arrowHorizontal;
 
         public float delta;
+        public GameObject[] canvas;
+        private Vector3 velocity;
         private bool arrowButtonDown;
         private bool rollButtonDown;
         private bool jumpButtonDown;
         private bool lockOnButtonDown;
+        private bool lookToEnemyButtonDown;
         public StateManager states;
         CameraManager camManager;
         void Start()
@@ -65,13 +69,14 @@ using UnityEngine.UI;
             o_input = Input.GetButton("O");
             s_input = Input.GetButton("S");
             t_input = Input.GetButtonUp("T");
-            r1_input = Input.GetButton("R1");
             l1_input = Input.GetButton("L1");
             l3_input = Input.GetButton("L3");
+            options_input = Input.GetButtonDown("Options");
 
             RollInput();
             FireInput();
             JumpInput();
+            
         }
         void UpdateStates()
         {
@@ -90,9 +95,12 @@ using UnityEngine.UI;
             Vector3 h = horizontal *  camManager.transform.right;
             states.moveDir = (v+h).normalized;
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
-            states.moveAmount = Mathf.Clamp01(m);
+            states.moveAmount = Mathf.SmoothDamp(states.moveAmount,Mathf.Clamp01(m),ref velocity.x,0.15f);
             AimInput();
             LockOnInput();
+            LookToEnemyInput();
+            OptionsInput();
+            
         }
 
         void ArrowInput()
@@ -151,32 +159,28 @@ using UnityEngine.UI;
             {
                 if(states.canMove)
                 {
-                    states.lockOn = true;
                     states.aim = true;
+                    states.run = false;
                     camManager.aim = states.aim;
                 }
                 else
                 {
-                    states.lockOn = false;
                     states.aim = false;
                     camManager.aim = states.aim;
                 }
+                camManager.lockon = false;
+                camManager.lockonTarget = null;
             }
             else
             {
-                states.lockOn = false;
                 states.aim = false;
                 camManager.aim = states.aim;
+                if(camManager.lockonTransform!=null)
+                {
+                    camManager.lockon = true;
+                    camManager.lockonTarget = camManager.lockonTransform.GetComponent<EnemyTarget>();
+                }
             }
-            if(Input.GetButtonDown("L1"))
-            {
-                camManager.lockonTarget = null;
-            }
-            else if(Input.GetButtonUp("L1"))
-            {
-                camManager.lockonTarget = states.lockonTarget;
-            }
-
         }
         void RollInput()
         {
@@ -237,8 +241,7 @@ using UnityEngine.UI;
                 return;
             else
             {
-                states.lockOn = !states.lockOn;
-                if(states.lockonTarget ==null)
+                if(camManager.lockonTarget ==null)
                 {
                     float distance = Mathf.Infinity;
                     GameObject target = null;
@@ -251,16 +254,79 @@ using UnityEngine.UI;
                             target = enemys[i];
                         }
                     }
-                    states.lockonTarget = target.GetComponent<EnemyTarget>();
-
+                    camManager.lockonTarget = target.GetComponent<EnemyTarget>();
                 }
                 else
                 {
-                    states.lockonTarget =null;
+                    camManager.lockonTransform = null;
+                    camManager.lockonTarget =null;
                 }
-                camManager.lockonTarget = states.lockonTarget;
-                states.lockonTransform = camManager.lockonTransform;
-                camManager.lockon = states.lockOn;
+                camManager.lockon = !camManager.lockon;
+            }
+        }
+        void LookToEnemyInput()
+        {
+            if(Input.GetButton("R1") && !lookToEnemyButtonDown)
+            {
+                lookToEnemyButtonDown = true;
+                r1_input = true;
+            }
+            else if(!Input.GetButton("R1") && lookToEnemyButtonDown)
+            {
+                lookToEnemyButtonDown = false;
+                r1_input = false;
+            }
+            else
+            {
+                r1_input = false;
+            }
+
+            if(!r1_input)
+                return;
+            else
+            {
+                if(camManager.lockonTarget ==null)
+                {
+                    float distance = Mathf.Infinity;
+                    GameObject target = null;
+                    var enemys = GameObject.FindGameObjectsWithTag("Enemy");
+                    for(int i= 0 ; i < enemys.Length;i++)
+                    {
+                        if(Vector3.Distance(transform.position,enemys[i].transform.position) < distance)
+                        {
+                            distance = Vector3.Distance(transform.position,enemys[i].transform.position);
+                            target = enemys[i];
+                        }
+                    }
+                    camManager.lockonTarget = target.GetComponent<EnemyTarget>();
+                    camManager.lookToEnemy = true;
+                    camManager.lockon = true;
+                    Debug.Log("R1 True");
+                }
+                else
+                {
+                    return;
+                }
+
+            }
+        }
+        void OptionsInput()
+        {
+            if(options_input)
+            {
+                pausing = !pausing;
+                states.pausing = pausing;
+                camManager.pausing = pausing;
+                if(pausing)
+                {
+                    canvas[0].SetActive(false);
+                    canvas[1].SetActive(true);
+                }
+                else
+                {
+                    canvas[0].SetActive(true);
+                    canvas[1].SetActive(false);
+                }
             }
         }
     }

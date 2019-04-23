@@ -19,8 +19,6 @@ public class StateManager : MonoBehaviour
     public float vertical;
     public float horizontal;
     public bool r1,r2,l1,l2,O,X,S,T,jump2;
-
-    //[Header("States")]
     public bool onGround
     {
         get
@@ -40,23 +38,19 @@ public class StateManager : MonoBehaviour
         }
     }
     [Header("States")]
+    public bool pausing;
     public bool run;
-    public bool lockOn;
     public bool inAction;
     public bool canMove;
     public bool aim;
     public bool invincible;
     public bool perfectDodge;
-    public string ATKMode ;
+    public string ATKMode;
     [Header("Other")]
     public EnemyTarget lockonTarget;
-    public Transform lockonTransform;
-    public AnimationCurve roll_curve;
-    public AnimationCurve runBreak_curve;
     public float moveAmount;
     [HideInInspector]
     public float delta;
-    public Vector3 onSlopeMoveDir;
     //[HideInInspector]
     public Vector3 moveDir;
     public float gravityScale;
@@ -68,8 +62,8 @@ public class StateManager : MonoBehaviour
     [HideInInspector]
     public Rigidbody rb;
     public LayerMask ignoreLayers;
-    [HideInInspector]
     private RaycastHit hit;
+    private Vector3 movedirSave;
     private float _actionDelay;
     private float _actionDelayMaxTime;
     private float timer;
@@ -113,20 +107,21 @@ public class StateManager : MonoBehaviour
     {
         ATKMode = BaseData.Instance.atkModeData.modeName;
         delta = d;
+
         HandleGravity(d);
-        //HandleLockRotationAnimations(moveDir);
         HandleRun();
         bodyAngle = ReturnCurrentBodyAndMoveAngle();
-        if(jump2 && Input.GetButton("X") && rb.velocity.y<0)
+        if(pausing)
         {
-            gravityScale = 1;
-        }else
-        {
-            gravityScale = 5;
+            ResetStates();
+            ResetAnimation();
+            return;
         }
+            
         if(inAction)
         {
             anim.applyRootMotion = true;
+            anim.SetFloat("angle",0);
             _actionDelay += delta;
             if(_actionDelay>_actionDelayMaxTime)
             {
@@ -149,8 +144,8 @@ public class StateManager : MonoBehaviour
         HandleMovement();
         HandleLookAndBodyAngle();
         HandleRoll();
-        //HandleRolls();
         HandleJump();
+        HandleGliding();
     }
     public void Tick(float d)
     {   
@@ -183,12 +178,26 @@ public class StateManager : MonoBehaviour
         anim.CrossFade(targetAnim,0.2f);
         //rb.velocity = Vector3.zero;
     }
-
+    float ReturnCurrentBodyAndMoveAngle()
+    {
+        
+        Vector3 axisSign = Vector3.Cross(moveDir,transform.forward);
+        float angleOut = Vector3.Angle(transform.forward, moveDir)* (axisSign.y >= 0 ? -1f : 1f);
+        bodyDir = angleOut/180 *2f;
+        if(moveDir==Vector3.zero)         
+            return 0;
+        else
+            return angleOut;
+        /* 
+        Quaternion targetRot = Quaternion.LookRotation(moveDir);
+        Quaternion rot = Quaternion.LookRotation(this.transform.forward);
+        */
+    }
     void HandleRun()
     {
         if(!run)
             return;
-        if(moveAmount==0)
+        if(moveAmount<=0.1f)
             run = false;
     }
     void HandleJump()
@@ -203,89 +212,22 @@ public class StateManager : MonoBehaviour
             anim.CrossFade("Jump",0.2f);
         }
     }
-    void HandleRolls()
+    void HandleGliding()
     {
-        if(!l2 )
-            return;
-        float v = (moveAmount>0.2f)? 1 : 0;
-        float h = 0;
-        if(v!=0)
+        if(jump2 && Input.GetButton("X") && rb.velocity.y<0)
         {
-            if(moveDir == Vector3.zero)
-                moveDir = transform.forward;
-            Quaternion targetRot = Quaternion.LookRotation(moveDir);
-            Quaternion rot = Quaternion.LookRotation(this.transform.forward);
-            //正面翻滾
-            if(rot.eulerAngles.y-45<targetRot.eulerAngles.y &&targetRot.eulerAngles.y<rot.eulerAngles.y+45)
-            {
-                transform.rotation = targetRot;
-                a_hook.dir = AnimatorHook.Direction.Vertical;
-                v = 1;
-                a_hook.rm_multi = BaseData.Instance.rollSpeed;
-            }
-            //左側翻滾
-            else if(rot.eulerAngles.y-90<targetRot.eulerAngles.y &&targetRot.eulerAngles.y<rot.eulerAngles.y-45)
-            {
-                Quaternion Rot = Quaternion.LookRotation(this.transform.forward);
-                transform.rotation = Rot;
-                a_hook.dir = AnimatorHook.Direction.Horizontal;
-                v = 0;
-                h = -1;
-                a_hook.rm_multi = BaseData.Instance.rollSpeed;
-            }
-            //右側翻滾
-            else if(rot.eulerAngles.y+45<targetRot.eulerAngles.y &&targetRot.eulerAngles.y<rot.eulerAngles.y+90)
-            {
-                Quaternion Rot = Quaternion.LookRotation(this.transform.forward);
-                transform.rotation = Rot;
-                    a_hook.dir = AnimatorHook.Direction.Horizontal;
-                v = 0;
-                h = 1;
-                a_hook.rm_multi = -BaseData.Instance.rollSpeed;
-            }
-            //背向翻滾
-            else
-            {
-                Quaternion Rot = Quaternion.LookRotation(-moveDir);
-                transform.rotation = Rot;
-                a_hook.dir = AnimatorHook.Direction.Vertical;
-                v = -1;
-                a_hook.rm_multi = -BaseData.Instance.rollSpeed;
-            }
-            a_hook.InitForRoll();
-        }
-        else
+            gravityScale = 1;
+        }else
         {
-            a_hook.rm_multi = 1.3f;
+            gravityScale = 5;
         }
-        anim.SetFloat("horizontal",h);
-        anim.SetFloat("vertical",v);
-
-        //model.SetActive(false);
-        model.transform.localScale=new Vector3(0.2f,0.2f,0.2f);
-        var effect = Instantiate(effectPrefab,model.transform.position,Quaternion.identity);
-        effect.transform.position = model.transform.position;
-        Destroy(effect,effect.transform.GetChild(0).GetComponent<ParticleSystem>().main.duration);
-        StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.5f,0.1f,2f));
-        perfectDodge = true;
-        canMove = false;
-        inAction = true;
-        invincible = true;
-        dodgeCount+=1;
-        dodgeCountText.text = "Dodge:"+dodgeCount.ToString();
-        anim.CrossFade("Rolls",0.2f);
     }
-
-
-
-
     void HandleRoll()
     {
         if(!l2 )
             return;
         float v = (moveAmount>0.3)?1 :0;
         float h = horizontal;
-        a_hook.dir = AnimatorHook.Direction.Vertical;
         a_hook.rm_multi = BaseData.Instance.rollSpeed;
         a_hook.InitForRoll();
         if(v==0)
@@ -304,6 +246,7 @@ public class StateManager : MonoBehaviour
         inAction = true;
         invincible = true;
         run = true;
+        _actionDelayMaxTime = 0.3f;
         dodgeCount+=1;
         dodgeCountText.text = "Dodge:"+dodgeCount.ToString();
         anim.CrossFade("Rolls",0.2f);
@@ -311,26 +254,38 @@ public class StateManager : MonoBehaviour
     void HandleLookAndBodyAngle()
     {
         Vector3 targetDir;
-        targetDir = (aim) ? ((Camera.main.transform.position+Camera.main.transform.forward*8)-this.transform.position)
-            : (lockOn==false) ? moveDir 
-                : (lockonTransform !=null) ? lockonTransform.transform.position - this.transform.position
+        targetDir = (aim) ?(Camera.main.transform.forward)
+        // ((Camera.main.transform.position+Camera.main.transform.forward*8)-this.transform.position)
                     : moveDir;
+        
         targetDir.y = 0;
         if(targetDir == Vector3.zero)
-            targetDir = Vector3.forward;
+            targetDir = transform.forward;
         Quaternion tr = Quaternion.LookRotation(targetDir);
         Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * BaseData.Instance.rotateSpeed);
         transform.rotation = targetRotation;
 
-        anim.SetBool("lockon",lockOn);
-        if(!lockOn &&!aim)
+        anim.SetBool("lockon",aim);
+
+        if(!aim)
             HandleMovementAnimations();
         else
             HandleLockRotationAnimations(moveDir);
     }
     void HandleMovement()
     {
-        rb.velocity = moveDir * (ProcessedData.Instance.moveSpeed * moveAmount) + new Vector3(0,rb.velocity.y,0) ;
+        
+        if(moveDir!=Vector3.zero)
+        {
+            movedirSave = moveDir;
+            rb.velocity = moveDir * (ProcessedData.Instance.moveSpeed * moveAmount) + new Vector3(0,rb.velocity.y,0);
+        }
+            
+        else
+        {
+            rb.velocity = movedirSave * (ProcessedData.Instance.moveSpeed * moveAmount) + new Vector3(0,rb.velocity.y,0);
+        }
+            
     }
     void HandleGravity(float d)
     {
@@ -346,48 +301,54 @@ public class StateManager : MonoBehaviour
         }
             
     }
-    float ReturnCurrentBodyAndMoveAngle()
-    {
-        
-        Vector3 axisSign = Vector3.Cross(moveDir,transform.forward);
-        float angleOut = Vector3.Angle(transform.forward, moveDir)* (axisSign.y >= 0 ? -1f : 1f);
-        bodyDir = angleOut/180 *2f;
-        if(moveDir==Vector3.zero)         
-            return 0;
-        else
-            return angleOut;
-        
-        /* 
-        Quaternion targetRot = Quaternion.LookRotation(moveDir);
-        Quaternion rot = Quaternion.LookRotation(this.transform.forward);
-        */
-        
-        
-    }
-
     void HandleRunBreak()
     {
-        if(bodyAngle>135)
+        if(anim.GetCurrentAnimatorStateInfo(0).IsName("Locomotion Normal") && aim==false)
         {
-            a_hook.InitForRunBreak();
-            inAction = true;
-            canMove = false;
-            anim.SetFloat("angle",bodyAngle);
-            anim.CrossFade("RunBreakRight",0.01f);
-            _actionDelayMaxTime = 0.7f;
+            if(bodyAngle>135 && moveAmount>=0.4)
+            {
+                a_hook.InitForRunBreak();
+                inAction = true;
+                canMove = false;
+                anim.SetFloat("angle",bodyAngle);
+                anim.CrossFade("JogBreakRight",0.3f);
+                _actionDelayMaxTime = 0.45f;
+            }
+            else if(bodyAngle<-135 && moveAmount>=0.4)
+            {
+                a_hook.InitForRunBreak();
+                inAction = true;
+                canMove = false;
+                anim.SetFloat("angle",bodyAngle);
+                anim.CrossFade("JogBreakLeft",0.3f);
+                _actionDelayMaxTime =0.45f;
+            }
         }
-        else if(bodyAngle<-135)
+        else if(anim.GetCurrentAnimatorStateInfo(0).IsName("Run") && aim==false)
         {
+            if(bodyAngle>135 && moveAmount>=0.4)
+            {
+                a_hook.InitForRunBreak();
+                inAction = true;
+                canMove = false;
+                anim.SetFloat("angle",bodyAngle);
+                anim.CrossFade("RunBreakRight",0.1f);
+                _actionDelayMaxTime = 0.5f;
+            }
+            else if(bodyAngle<-135 && moveAmount>=0.4)
+            {
+                a_hook.InitForRunBreak();
+                inAction = true;
+                canMove = false;
+                anim.SetFloat("angle",bodyAngle);
+                anim.CrossFade("RunBreakLeft",0.1f);
+                _actionDelayMaxTime =0.5f;
+            }
+        }
             
-            a_hook.InitForRunBreak();
-            inAction = true;
-            canMove = false;
-            anim.SetFloat("angle",bodyAngle);
-            anim.CrossFade("RunBreakLeft",0.01f);
-            _actionDelayMaxTime =0.7f;
-        }
+
     }
-    public void HandleInvincibleTime(float d)
+    void HandleInvincibleTime(float d)
     {
         if(!invincible)
             return;
@@ -421,17 +382,39 @@ public class StateManager : MonoBehaviour
     void HandleMovementAnimations()
     {
         anim.SetBool("run",run);
-        anim.SetFloat("moveAmount",moveAmount,0.4f,delta);
+        anim.SetFloat("moveAmount",moveAmount,0.1f,delta);
         anim.SetFloat("direction",bodyDir,0.1f,delta);
-        
     }
     void HandleLockRotationAnimations(Vector3 moveDir)
     {
-        Vector3 relativeDir = transform.InverseTransformDirection(moveDir);
+        Vector3 relativeDir = transform.InverseTransformDirection(moveDir).normalized *moveAmount;
         float h = relativeDir.x;
         float v = relativeDir.z;
-        anim.SetFloat("horizontal",h);
-        anim.SetFloat("vertical",v);
+        anim.SetFloat("horizontal",h,0.3f,delta);
+        anim.SetFloat("vertical",v,0.3f,delta);
+        anim.SetBool("run",run);
     }
-
+    void ResetAnimation()
+    {
+        anim.applyRootMotion = false;
+        anim.SetBool("run",false);
+        anim.SetFloat("moveAmount",0);
+        anim.SetFloat("direction",0);
+        anim.SetFloat("horizontal",0);
+        anim.SetFloat("vertical",0);
+        anim.SetFloat("angle",0);
+        anim.CrossFade("Locomotion Normal",0.1f);
+    }
+    void ResetStates()
+    {
+        run = false;
+        rb.velocity = Vector3.zero;
+    }
+    private void OnTriggerStay(Collider col)
+    {
+        if(col.tag == "Bullet")
+        {
+            TimeManager.Instance.SlowmotionSet(2,0.1f);
+        }
+    }
 }

@@ -5,6 +5,8 @@ using UnityEngine;
     {
         public bool aim;
         public bool lockon;
+        public float cameraDistance ;
+        public float aimCameraDistance;
         public float follwSpeeed =9.0f;
         public float mouseSpeed = 2.0f;
         public float controllerSpeed = 7.0f;
@@ -17,15 +19,14 @@ using UnityEngine;
         float smoothYvelocity;
         public float lookAngle;
         public float tiltAngle;
-
-        bool usedRightAxis;
-
-
+        private bool usedRightAxis;
+        public bool pausing;
+        public bool lookToEnemy;
         public Transform target;
         public EnemyTarget lockonTarget;
         public Transform lockonTransform;
         public Transform aimPivot;
-
+        public Transform pausePivot;
         [HideInInspector]
         public Transform pivot;
         [HideInInspector]
@@ -50,23 +51,11 @@ using UnityEngine;
             float c_v = Input.GetAxis("RightAxis Y");
 
             float targetSpeed = mouseSpeed;
-
             if(lockonTarget!=null)
             {
                 if(lockonTransform == null)
                 {
                     lockonTransform =lockonTarget.GetTarget();
-                    states.lockonTransform = lockonTransform;
-                }
-
-                if(Mathf.Abs(c_h) > 0.6f)
-                {
-                    if(!usedRightAxis)
-                    {
-                        lockonTransform = lockonTarget.GetTarget((c_h > 0 ));
-                        states.lockonTransform = lockonTransform;
-                        usedRightAxis = true;
-                    }
                 }
             }
 
@@ -84,10 +73,12 @@ using UnityEngine;
                 v = c_v;
                 targetSpeed = controllerSpeed;
             }
-            if(!aim)
+            if(!aim &&!pausing)
                 FollowTarget(d);
-            else
+            else if(aim && !pausing)
                 AimCameraMove(d);
+            else
+                PausingCameraMove(d);
             HandleRotations(d,v,h,targetSpeed);
         } 
 
@@ -96,8 +87,8 @@ using UnityEngine;
             float speed = d * follwSpeeed;
             Vector3 targetPostion = Vector3.Lerp(transform.position,target.transform.position,speed);
             transform.position = targetPostion;
-            camCol.maxDistance = 8;
-            follwSpeeed = 6;
+            camCol.maxDistance = cameraDistance;
+            follwSpeeed = 10;
             controllerSpeed = 4;
             crossHair.SetActive(false);
         }
@@ -106,10 +97,18 @@ using UnityEngine;
             float speed = d * follwSpeeed;
             Vector3 targetPostion = Vector3.Lerp(transform.position,aimPivot.transform.position,speed);
             transform.position = targetPostion;
-            camCol.maxDistance = 3;
+            camCol.maxDistance = aimCameraDistance;
             follwSpeeed = 100;
             controllerSpeed = 2f;
             crossHair.SetActive(true);
+        }
+        void PausingCameraMove(float d)
+        {
+            float speed = d * follwSpeeed *2;
+            Vector3 targetPostion = Vector3.Lerp(transform.position,pausePivot.transform.position,speed);
+            transform.position = targetPostion;
+            camCol.maxDistance = 4.5f;
+            controllerSpeed = 4;
         }
         void HandleRotations(float d,float v,float h, float targetSpeed)
         {
@@ -124,9 +123,17 @@ using UnityEngine;
                 smoothY = v;
             }
 
-            tiltAngle -= smoothY * targetSpeed *0.8f;
-            tiltAngle = Mathf.Clamp(tiltAngle,minAngle,maxAngle);
-            pivot.localRotation = Quaternion.Euler(tiltAngle,0,0);
+            if(!pausing)
+            {
+                tiltAngle -= smoothY * targetSpeed *0.8f;
+                tiltAngle = Mathf.Clamp(tiltAngle,minAngle,maxAngle);
+            }
+            else
+            {
+                tiltAngle = 0;
+            }
+            
+                pivot.localRotation = Quaternion.Euler(tiltAngle,0,0);
             
 
             if(lockon && lockonTarget != null)
@@ -141,6 +148,16 @@ using UnityEngine;
                 targetRot.z = 0;
                 transform.rotation = Quaternion.Slerp(transform.rotation,targetRot,d*9);
                 lookAngle = transform.eulerAngles.y;
+                if(lookToEnemy)
+                {
+                    if(targetRot.eulerAngles.y+5>transform.rotation.eulerAngles.y &&transform.rotation.eulerAngles.y>targetRot.eulerAngles.y-5f)
+                    {
+                        lockonTarget =null;
+                        lockonTransform = null;
+                        lockon = false;
+                        lookToEnemy = false;
+                    }
+                }
                 return;
             }
 
