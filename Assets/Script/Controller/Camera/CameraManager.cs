@@ -35,12 +35,14 @@ using UnityEngine;
         [HideInInspector]
         public CameraCollision camCol;
         public GameObject crossHair;
+        private Transform transformCache;
         public void Init(StateManager st)
         {
             states = st;
             target = st.transform;
             camTrans =Camera.main.transform;
             pivot = camTrans.parent;
+            transformCache = GetComponent<Transform>();
         }
         public void Tick(float d)
         {
@@ -85,28 +87,28 @@ using UnityEngine;
         void FollowTarget(float d)
         {
             float speed = d * follwSpeeed;
-            Vector3 targetPostion = Vector3.Lerp(transform.position,target.transform.position,speed);
-            transform.position = targetPostion;
+            Vector3 targetPostion = Vector3.Lerp(transformCache.position,target.position,speed);
+            transformCache.position = targetPostion;
             camCol.maxDistance = cameraDistance;
-            follwSpeeed = 10;
+            //follwSpeeed = 10;
             controllerSpeed = 4;
             crossHair.SetActive(false);
         }
         void AimCameraMove(float d)
         {
             float speed = d * follwSpeeed;
-            Vector3 targetPostion = Vector3.Lerp(transform.position,aimPivot.transform.position,speed);
-            transform.position = targetPostion;
+            Vector3 targetPostion = Vector3.Lerp(transformCache.position,aimPivot.position,speed);
+            transformCache.position = targetPostion;
             camCol.maxDistance = aimCameraDistance;
-            follwSpeeed = 100;
-            controllerSpeed = 2f;
+            //follwSpeeed = 10;
+            controllerSpeed = 1.5f;
             crossHair.SetActive(true);
         }
         void PausingCameraMove(float d)
         {
             float speed = d * follwSpeeed *2;
-            Vector3 targetPostion = Vector3.Lerp(transform.position,pausePivot.transform.position,speed);
-            transform.position = targetPostion;
+            Vector3 targetPostion = Vector3.Lerp(transformCache.position,pausePivot.position,speed);
+            transformCache.position = targetPostion;
             camCol.maxDistance = 4.5f;
             controllerSpeed = 4;
         }
@@ -136,33 +138,40 @@ using UnityEngine;
                 pivot.localRotation = Quaternion.Euler(tiltAngle,0,0);
             
 
-            if(lockon && lockonTarget != null)
+            if(lockonTarget != null)
             {
-                Vector3 targetDir = lockonTransform.position - this.transform.position;
+                Vector3 targetDir = lockonTransform.position - this.transformCache.position;
                 targetDir.Normalize();
 
                 if(targetDir == Vector3.zero)
-                    targetDir = this.transform.forward;
+                    targetDir = this.transformCache.forward;
                 Quaternion targetRot = Quaternion.LookRotation(targetDir);
                 targetRot.x = 0;
                 targetRot.z = 0;
-                transform.rotation = Quaternion.Slerp(transform.rotation,targetRot,d*9);
-                lookAngle = transform.eulerAngles.y;
+                
+                float lookSpeed = 0;
+                if(lookToEnemy)
+                    lookSpeed = 18;
+                else
+                    lookSpeed = 10;
                 if(lookToEnemy)
                 {
-                    if(targetRot.eulerAngles.y+5>transform.rotation.eulerAngles.y &&transform.rotation.eulerAngles.y>targetRot.eulerAngles.y-5f)
+                    if(targetRot.eulerAngles.y+3f>transformCache.rotation.eulerAngles.y &&transformCache.rotation.eulerAngles.y>targetRot.eulerAngles.y-3f)
                     {
                         lockonTarget =null;
                         lockonTransform = null;
                         lockon = false;
                         lookToEnemy = false;
+                        return;
                     }
                 }
+                transformCache.rotation = Quaternion.Slerp(transformCache.rotation,targetRot,d*lookSpeed);
+                lookAngle = transformCache.eulerAngles.y;
                 return;
             }
 
             lookAngle += smoothX * targetSpeed;
-            transform.rotation = Quaternion.Euler(0,lookAngle,0);
+            transformCache.rotation = Quaternion.Euler(0,lookAngle,0);
             
             
         }

@@ -28,6 +28,7 @@ using UnityEngine.UI;
         public float arrowHorizontal;
 
         public float delta;
+        public GameObject lockOnIcon;
         public GameObject[] canvas;
         private Vector3 velocity;
         private bool arrowButtonDown;
@@ -35,6 +36,7 @@ using UnityEngine.UI;
         private bool jumpButtonDown;
         private bool lockOnButtonDown;
         private bool lookToEnemyButtonDown;
+        private Animator lockOnAnim;
         public StateManager states;
         CameraManager camManager;
         void Start()
@@ -45,6 +47,8 @@ using UnityEngine.UI;
 
             camManager = CameraManager.singleton;
             camManager.Init(states);
+
+            lockOnAnim = lockOnIcon.GetComponent<Animator>();
 
         }
         void FixedUpdate()
@@ -61,6 +65,11 @@ using UnityEngine.UI;
             ArrowInput();
             delta = Time.deltaTime;
             states.Tick(delta);
+            // if(lockOnAnim.GetCurrentAnimatorStateInfo(0).normalizedTime>1f)
+            //     lockOnIcon.SetActive(false);
+            // if(lockOnIcon.activeSelf)
+            //     if(camManager.lockonTransform!=null)
+            //     lockOnIcon.transform.position = Camera.main.WorldToScreenPoint(camManager.lockonTransform.position+new Vector3(0,1,0));
         }
         void GetInput()
         {
@@ -100,7 +109,6 @@ using UnityEngine.UI;
             LockOnInput();
             LookToEnemyInput();
             OptionsInput();
-            
         }
 
         void ArrowInput()
@@ -134,22 +142,27 @@ using UnityEngine.UI;
         void FireInput()
         {
             r2_axis = Input.GetAxis("R2");
-            if(BaseData.Instance.atkModeData.modeName=="Regular")
-            {
-                r2_input = Input.GetButton("R2");
-                if(r2_axis <0)
-                    r2_input = true;
-            }
-            else if(BaseData.Instance.atkModeData.modeName=="Desire")
-            {
-                r2_input = Input.GetButtonDown("R2");
-            }
-            else if (BaseData.Instance.atkModeData.modeName=="Supreme")
-            {
-                r2_input = Input.GetButton("R2");
-                if(r2_axis <0)
-                    r2_input = true;
-            }
+            r2_input = Input.GetButton("R2");
+            if(r2_axis <0)
+                r2_input = true;
+            // if(BaseData.Instance.atkModeData.modeName=="Regular")
+            // {
+            //     r2_input = Input.GetButton("R2");
+            //     if(r2_axis <0)
+            //         r2_input = true;
+            // }
+            // else if(BaseData.Instance.atkModeData.modeName=="Desire")
+            // {
+            //     r2_input = Input.GetButton("R2");
+            //     if(r2_axis <0)
+            //         r2_input = true;
+            // }
+            // else if (BaseData.Instance.atkModeData.modeName=="Supreme")
+            // {
+            //     r2_input = Input.GetButton("R2");
+            //     if(r2_axis <0)
+            //         r2_input = true;
+            // }
                 
         }
         void AimInput()
@@ -157,27 +170,28 @@ using UnityEngine.UI;
             //瞄準
             if(l1_input)
             {
-                if(states.canMove)
-                {
-                    states.aim = true;
-                    states.run = false;
-                    camManager.aim = states.aim;
-                }
-                else
-                {
-                    states.aim = false;
-                    camManager.aim = states.aim;
-                }
-                camManager.lockon = false;
+                states.aim = true;
+                states.run = false;
+                camManager.aim = states.aim;
+                // if(states.canMove||states.inAction)
+                // {
+                //     states.aim = true;
+                //     states.run = false;
+                //     camManager.aim = states.aim;
+                // }
+                // else
+                // {
+                //     states.aim = false;
+                //     camManager.aim = states.aim;
+                // }
                 camManager.lockonTarget = null;
             }
             else
             {
                 states.aim = false;
                 camManager.aim = states.aim;
-                if(camManager.lockonTransform!=null)
+                if(camManager.lockon && camManager.lockonTransform!=null)
                 {
-                    camManager.lockon = true;
                     camManager.lockonTarget = camManager.lockonTransform.GetComponent<EnemyTarget>();
                 }
             }
@@ -300,8 +314,7 @@ using UnityEngine.UI;
                     }
                     camManager.lockonTarget = target.GetComponent<EnemyTarget>();
                     camManager.lookToEnemy = true;
-                    camManager.lockon = true;
-                    Debug.Log("R1 True");
+                    //lockOnIcon.SetActive(true);
                 }
                 else
                 {

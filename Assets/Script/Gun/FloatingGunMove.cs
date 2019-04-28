@@ -8,31 +8,38 @@ public class FloatingGunMove : MonoBehaviour
     public GameObject target;
     public float follwSpeeed ;
     private CameraManager camManager;
+    private StateManager states;
+    private Transform transformCache;
 
     void Start()
     {
+        transformCache = this.GetComponent<Transform>();
+        states = target.GetComponent<StateManager>();
         cam = Camera.main; 
         camManager = cam.transform.root.GetComponent<CameraManager>();  
     }
     void FixedUpdate()
     {
-        
         FollowTarget(Time.fixedDeltaTime);
         RotateToCamera();
     }
     void FollowTarget(float d)
     {
         float speed = 0;
-        if(!camManager.pausing)
-        {
-            speed = d * follwSpeeed;
-        }
-        else
+        if(camManager.pausing)
         {
             speed = d * follwSpeeed*5;
         }
+        else if(states.aim)
+        {
+            speed = d * follwSpeeed*10;
+        }
+        else
+        {
+            speed = d * follwSpeeed;
+        }
         Vector3 targetPostion = Vector3.Lerp(transform.position,target.transform.position,speed);
-        transform.position = targetPostion;
+        transformCache.position = targetPostion;
     }
     void RotateToCamera()
     {
@@ -40,6 +47,6 @@ public class FloatingGunMove : MonoBehaviour
         rotation.x = 0;
         rotation.z = 0;
         //this.gameObject.transform.localRotation =Quaternion.Lerp(this.gameObject.transform.rotation,rotation,0.1f);
-        this.gameObject.transform.localRotation =rotation;
+        transformCache.localRotation =rotation;
     }
 }

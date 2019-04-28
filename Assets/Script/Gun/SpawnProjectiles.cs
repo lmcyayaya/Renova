@@ -97,6 +97,7 @@ public class SpawnProjectiles : MonoBehaviour
     {
         if(state.r2 && Time.time >= timeToFire)
         {   
+            
             StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.15f,0.1f,1f));
             if(shootCount ==5)
             {

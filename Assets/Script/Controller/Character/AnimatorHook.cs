@@ -10,10 +10,12 @@ using UnityEngine;
         float roll_t;
         float runBreak_t;
         public bool runBreak;
+        AnimationCurve rollCurve;
         public void Init(StateManager st)
         {
             states = st;
             anim = st.anim;
+            rollCurve = st.roll_curve;
             
         }
 
@@ -68,7 +70,7 @@ using UnityEngine;
                 roll_t +=states.delta/0.5f;
                 if(roll_t >1)
                     roll_t = 1;
-                //float zValue = rollCurve.Evaluate(roll_t);
+                float Value = rollCurve.Evaluate(roll_t);
                 if(states.moveDir!=Vector3.zero)
                 {
                     Vector3 relative = states.moveDir.normalized;

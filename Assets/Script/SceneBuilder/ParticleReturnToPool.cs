@@ -26,7 +26,6 @@ public class ParticleReturnToPool : MonoBehaviour
                     ps = this.transform.GetChild(i).GetComponent<ParticleSystem>();
                     break;
                 }
-                    
             }
         if(ps!=null)
             t = ps.main.duration;

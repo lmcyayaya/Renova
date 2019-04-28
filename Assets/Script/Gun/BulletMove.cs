@@ -13,23 +13,25 @@ public class BulletMove : MonoBehaviour
     private Vector3 pos;
     private Quaternion rot;
     public float Damage;
+    private Rigidbody rb;
     
     private void Awake()
     {
         p_speed = speed;
+        rb = GetComponent<Rigidbody>();
     }
     void FixedUpdate()
     {
-        
+        rb.velocity = Vector3.zero;
         if(speed!=0)
-            this.GetComponent<Rigidbody>().velocity = dir *speed;
+            rb.velocity = dir * speed;
         else
             Debug.Log("No Speed"); 
     }
     private void OnCollisionEnter(Collision col)
     {
         speed = 0;
-        this.GetComponent<Rigidbody>().velocity =Vector3.zero;
+        rb.velocity =Vector3.zero;
         ContactPoint contact = col.contacts[0];
         rot = Quaternion.FromToRotation(Vector3.up,contact.normal);
         pos = contact.point;
@@ -51,7 +53,7 @@ public class BulletMove : MonoBehaviour
     {
         StartCoroutine(ObjectPool.ReturnToPool(gameObject,3));
         speed = p_speed;
-        this.GetComponent<Rigidbody>().velocity =Vector3.zero;
+        rb.velocity =Vector3.zero;
     }
     private void HitSpawn(string hitVfxName)
     {

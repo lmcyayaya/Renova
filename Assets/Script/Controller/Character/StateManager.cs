@@ -25,11 +25,11 @@ public class StateManager : MonoBehaviour
         {
             Vector3 orgin = transform.position + (Vector3.up * BaseData.Instance.toGround);
             Vector3 dir = -Vector3.up;
-            float dis = BaseData.Instance.toGround+0.3f;
+            float dis = BaseData.Instance.toGround+0.05f;//+0.3f;
             if(Physics.Raycast(orgin,dir,out hit,dis,ignoreLayers))
             {
                 transform.position = hit.point;
-                rb.velocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
+                //rb.velocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
                 jump2 = false;
                 return true;
             }
@@ -47,8 +47,8 @@ public class StateManager : MonoBehaviour
     public bool perfectDodge;
     public string ATKMode;
     [Header("Other")]
-    public EnemyTarget lockonTarget;
     public float moveAmount;
+    public AnimationCurve roll_curve;
     [HideInInspector]
     public float delta;
     //[HideInInspector]
@@ -67,6 +67,7 @@ public class StateManager : MonoBehaviour
     private float _actionDelay;
     private float _actionDelayMaxTime;
     private float timer;
+    private float rotateSpeed = 1;
     public void Init()
     {
         SetupAnimator();
@@ -110,7 +111,8 @@ public class StateManager : MonoBehaviour
 
         HandleGravity(d);
         HandleRun();
-        bodyAngle = ReturnCurrentBodyAndMoveAngle();
+        
+
         if(pausing)
         {
             ResetStates();
@@ -121,8 +123,10 @@ public class StateManager : MonoBehaviour
         if(inAction)
         {
             anim.applyRootMotion = true;
-            anim.SetFloat("angle",0);
+            //anim.SetFloat("angle",0);
+            anim.SetFloat("direction",0);
             _actionDelay += delta;
+            HandleLockRotationAnimations(moveDir);
             if(_actionDelay>_actionDelayMaxTime)
             {
                 inAction = false;
@@ -133,19 +137,25 @@ public class StateManager : MonoBehaviour
                 return;
             }
         }
+
         canMove = anim.GetBool("canMove");    
         if(!canMove)
             return;
         a_hook.CloseRoll();
         a_hook.CloseRunBreak();
+
         anim.applyRootMotion = false;
         rb.drag = (moveAmount > 0 || onGround == false) ? 0:4;
-        HandleRunBreak();
         HandleMovement();
+        bodyAngle = ReturnCurrentBodyAndMoveAngle();
         HandleLookAndBodyAngle();
+        
         HandleRoll();
         HandleJump();
         HandleGliding();
+        
+        HandleRunBreak();
+        
     }
     public void Tick(float d)
     {   
@@ -183,44 +193,48 @@ public class StateManager : MonoBehaviour
         
         Vector3 axisSign = Vector3.Cross(moveDir,transform.forward);
         float angleOut = Vector3.Angle(transform.forward, moveDir)* (axisSign.y >= 0 ? -1f : 1f);
-        bodyDir = angleOut/180 *2f;
-        if(moveDir==Vector3.zero)         
+        bodyDir = angleOut/180 ;
+        if(moveDir==Vector3.zero ||aim)         
             return 0;
         else
             return angleOut;
-        /* 
-        Quaternion targetRot = Quaternion.LookRotation(moveDir);
-        Quaternion rot = Quaternion.LookRotation(this.transform.forward);
-        */
     }
     void HandleRun()
     {
         if(!run)
             return;
-        if(moveAmount<=0.1f)
+        if(moveAmount<=0.5f)
+        {
             run = false;
+            rotateSpeed = 1;
+        }
+            
     }
     void HandleJump()
     {
-        if(!X)
+        if(!X||bodyAngle>135||bodyAngle<-135)
             return;
         if(!jump2)
         {
             if(!onGround)
-                jump2 =true; 
+            {
+                jump2 =true;
+                anim.CrossFade("Frontsault",0.2f);
+                rb.velocity = new Vector3(rb.velocity.x,BaseData.Instance.jumpSpeed,rb.velocity.z);
+                return;
+            }
+                
             rb.velocity = new Vector3(rb.velocity.x,BaseData.Instance.jumpSpeed,rb.velocity.z);
             anim.CrossFade("Jump",0.2f);
         }
     }
     void HandleGliding()
     {
-        if(jump2 && Input.GetButton("X") && rb.velocity.y<0)
-        {
+        gravityScale = 5;
+        if(!jump2)
+            return;
+        if(Input.GetButton("X") && rb.velocity.y<0)
             gravityScale = 1;
-        }else
-        {
-            gravityScale = 5;
-        }
     }
     void HandleRoll()
     {
@@ -246,6 +260,7 @@ public class StateManager : MonoBehaviour
         inAction = true;
         invincible = true;
         run = true;
+        rotateSpeed = 4;
         _actionDelayMaxTime = 0.3f;
         dodgeCount+=1;
         dodgeCountText.text = "Dodge:"+dodgeCount.ToString();
@@ -262,7 +277,7 @@ public class StateManager : MonoBehaviour
         if(targetDir == Vector3.zero)
             targetDir = transform.forward;
         Quaternion tr = Quaternion.LookRotation(targetDir);
-        Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * BaseData.Instance.rotateSpeed);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * BaseData.Instance.rotateSpeed*rotateSpeed);
         transform.rotation = targetRotation;
 
         anim.SetBool("lockon",aim);
@@ -274,22 +289,17 @@ public class StateManager : MonoBehaviour
     }
     void HandleMovement()
     {
-        
         if(moveDir!=Vector3.zero)
         {
             movedirSave = moveDir;
             rb.velocity = moveDir * (ProcessedData.Instance.moveSpeed * moveAmount) + new Vector3(0,rb.velocity.y,0);
         }
-            
         else
-        {
             rb.velocity = movedirSave * (ProcessedData.Instance.moveSpeed * moveAmount) + new Vector3(0,rb.velocity.y,0);
-        }
-            
     }
     void HandleGravity(float d)
     {
-        if(a_hook.rolling)
+        if(a_hook.rolling||onGround)
         {
             rb.useGravity = false;
             rb.velocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
@@ -303,48 +313,48 @@ public class StateManager : MonoBehaviour
     }
     void HandleRunBreak()
     {
-        if(anim.GetCurrentAnimatorStateInfo(0).IsName("Locomotion Normal") && aim==false)
+        if(anim.GetCurrentAnimatorStateInfo(0).IsName("Locomotion Normal") &&onGround)
         {
-            if(bodyAngle>135 && moveAmount>=0.4)
+            if(bodyAngle>135 && moveAmount>=0.6)
             {
                 a_hook.InitForRunBreak();
                 inAction = true;
                 canMove = false;
                 anim.SetFloat("angle",bodyAngle);
                 anim.CrossFade("JogBreakRight",0.3f);
-                _actionDelayMaxTime = 0.45f;
+                _actionDelayMaxTime = 0.6f;
             }
-            else if(bodyAngle<-135 && moveAmount>=0.4)
+            else if(bodyAngle<-135 && moveAmount>=0.6)
             {
                 a_hook.InitForRunBreak();
                 inAction = true;
                 canMove = false;
                 anim.SetFloat("angle",bodyAngle);
                 anim.CrossFade("JogBreakLeft",0.3f);
-                _actionDelayMaxTime =0.45f;
+                _actionDelayMaxTime =0.6f;
             }
         }
-        else if(anim.GetCurrentAnimatorStateInfo(0).IsName("Run") && aim==false)
-        {
-            if(bodyAngle>135 && moveAmount>=0.4)
-            {
-                a_hook.InitForRunBreak();
-                inAction = true;
-                canMove = false;
-                anim.SetFloat("angle",bodyAngle);
-                anim.CrossFade("RunBreakRight",0.1f);
-                _actionDelayMaxTime = 0.5f;
-            }
-            else if(bodyAngle<-135 && moveAmount>=0.4)
-            {
-                a_hook.InitForRunBreak();
-                inAction = true;
-                canMove = false;
-                anim.SetFloat("angle",bodyAngle);
-                anim.CrossFade("RunBreakLeft",0.1f);
-                _actionDelayMaxTime =0.5f;
-            }
-        }
+        // else if(anim.GetCurrentAnimatorStateInfo(0).IsName("Run") && aim==false)
+        // {
+        //     if(bodyAngle>135 && moveAmount>=0.5)
+        //     {
+        //         a_hook.InitForRunBreak();
+        //         inAction = true;
+        //         canMove = false;
+        //         anim.SetFloat("angle",bodyAngle);
+        //         anim.CrossFade("RunBreakRight",0.1f);
+        //         _actionDelayMaxTime = 0.6f;
+        //     }
+        //     else if(bodyAngle<-135 && moveAmount>=0.5)
+        //     {
+        //         a_hook.InitForRunBreak();
+        //         inAction = true;
+        //         canMove = false;
+        //         anim.SetFloat("angle",bodyAngle);
+        //         anim.CrossFade("RunBreakLeft",0.1f);
+        //         _actionDelayMaxTime =0.6f;
+        //     }
+        // }
             
 
     }
@@ -374,6 +384,7 @@ public class StateManager : MonoBehaviour
             return;
         canMove = false;
         inAction = true;
+        _actionDelayMaxTime = 0.2f;
         invincible = true;
         anim.CrossFade("damage_1",0.2f);
         StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.2f,0.05f,1.5f));
@@ -383,15 +394,15 @@ public class StateManager : MonoBehaviour
     {
         anim.SetBool("run",run);
         anim.SetFloat("moveAmount",moveAmount,0.1f,delta);
-        anim.SetFloat("direction",bodyDir,0.1f,delta);
+        anim.SetFloat("direction",bodyDir,0.05f,delta);
     }
     void HandleLockRotationAnimations(Vector3 moveDir)
     {
         Vector3 relativeDir = transform.InverseTransformDirection(moveDir).normalized *moveAmount;
         float h = relativeDir.x;
         float v = relativeDir.z;
-        anim.SetFloat("horizontal",h,0.3f,delta);
-        anim.SetFloat("vertical",v,0.3f,delta);
+        anim.SetFloat("horizontal",h,0.1f,delta);
+        anim.SetFloat("vertical",v,0.1f,delta);
         anim.SetBool("run",run);
     }
     void ResetAnimation()
