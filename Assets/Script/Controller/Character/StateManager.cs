@@ -149,7 +149,6 @@ public class StateManager : MonoBehaviour
         HandleMovement();
         bodyAngle = ReturnCurrentBodyAndMoveAngle();
         HandleLookAndBodyAngle();
-        
         HandleRoll();
         HandleJump();
         HandleGliding();
@@ -218,6 +217,7 @@ public class StateManager : MonoBehaviour
         {
             if(!onGround)
             {
+
                 jump2 =true;
                 anim.CrossFade("Frontsault",0.2f);
                 rb.velocity = new Vector3(rb.velocity.x,BaseData.Instance.jumpSpeed,rb.velocity.z);
@@ -277,7 +277,7 @@ public class StateManager : MonoBehaviour
         if(targetDir == Vector3.zero)
             targetDir = transform.forward;
         Quaternion tr = Quaternion.LookRotation(targetDir);
-        Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * moveAmount * BaseData.Instance.rotateSpeed*rotateSpeed);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation,tr,delta * BaseData.Instance.rotateSpeed*rotateSpeed);
         transform.rotation = targetRotation;
 
         anim.SetBool("lockon",aim);

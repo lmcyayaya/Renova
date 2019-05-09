@@ -21,10 +21,8 @@ using UnityEngine;
         public float tiltAngle;
         private bool usedRightAxis;
         public bool pausing;
-        public bool lookToEnemy;
+        public float lookSpeed;
         public Transform target;
-        public EnemyTarget lockonTarget;
-        public Transform lockonTransform;
         public Transform aimPivot;
         public Transform pausePivot;
         [HideInInspector]
@@ -35,6 +33,14 @@ using UnityEngine;
         [HideInInspector]
         public CameraCollision camCol;
         public GameObject crossHair;
+        
+        [Header("Lock")]
+        public bool lookToEnemy;
+        public Transform lockonTransform;
+        public EnemyTarget lockonTarget;
+        public float screenXMax;
+        public float screenXMin;
+        Vector3 lockOnPos;
         private Transform transformCache;
         public void Init(StateManager st)
         {
@@ -135,12 +141,21 @@ using UnityEngine;
                 tiltAngle = 0;
             }
             
-                pivot.localRotation = Quaternion.Euler(tiltAngle,0,0);
+            pivot.localRotation = Quaternion.Euler(tiltAngle,0,0);
             
+            
+            lookAngle += smoothX * targetSpeed;
+            transformCache.rotation = Quaternion.Euler(0,lookAngle,0);
 
+
+
+            
             if(lockonTarget != null)
             {
-                Vector3 targetDir = lockonTransform.position - this.transformCache.position;
+                 if(HandleLockDeadZone())
+                     return;
+                //Vector3 targetDir = lockonTransform.position - this.transformCache.position;
+                Vector3 targetDir = Camera.main.ScreenToWorldPoint(lockOnPos) - this.transformCache.position;
                 targetDir.Normalize();
 
                 if(targetDir == Vector3.zero)
@@ -148,12 +163,6 @@ using UnityEngine;
                 Quaternion targetRot = Quaternion.LookRotation(targetDir);
                 targetRot.x = 0;
                 targetRot.z = 0;
-                
-                float lookSpeed = 0;
-                if(lookToEnemy)
-                    lookSpeed = 18;
-                else
-                    lookSpeed = 10;
                 if(lookToEnemy)
                 {
                     if(targetRot.eulerAngles.y+3f>transformCache.rotation.eulerAngles.y &&transformCache.rotation.eulerAngles.y>targetRot.eulerAngles.y-3f)
@@ -165,15 +174,37 @@ using UnityEngine;
                         return;
                     }
                 }
-                transformCache.rotation = Quaternion.Slerp(transformCache.rotation,targetRot,d*lookSpeed);
-                lookAngle = transformCache.eulerAngles.y;
-                return;
+                transformCache.rotation = Quaternion.Slerp(transformCache.rotation,targetRot, d*lookSpeed);
+                lookAngle = transformCache.rotation.eulerAngles.y;
+                // return;
             }
-
-            lookAngle += smoothX * targetSpeed;
-            transformCache.rotation = Quaternion.Euler(0,lookAngle,0);
-            
-            
+        }
+        bool HandleLockDeadZone()
+        {
+            screenXMax = Mathf.Clamp(screenXMax,screenXMin,16);
+            screenXMin = Mathf.Clamp(screenXMin,0,screenXMax);
+            lockOnPos = Camera.main.WorldToScreenPoint(lockonTransform.position);
+            if(Screen.width*screenXMin/16 < lockOnPos.x && lockOnPos.x < Screen.width* screenXMax/16)
+                return true;
+            else
+            {
+                
+                if(lockOnPos.x<Screen.width* screenXMin/16)
+                {
+                    //計算鎖定時敵人位置距離DeadZone邊境長度去讓lookSpeed做換算差值，鏡頭越靠近目標時速度就越慢，越遠則越快
+                    float speedScale = Mathf.Clamp((((Screen.width* screenXMin/16)-lockOnPos.x)/500),1/12,1);
+                    lookSpeed =speedScale*12;
+                    lockOnPos.x = Screen.width* screenXMin/16;
+                }
+                else if(lockOnPos.x > Screen.width* screenXMax/16)
+                {
+                    
+                    float speedScale = Mathf.Clamp(((lockOnPos.x-(Screen.width* screenXMax/16))/500),1/12,1);
+                    lookSpeed =speedScale*12;
+                    lockOnPos.x = Screen.width* screenXMax/16;
+                }
+                return false;
+            }
         }
         public static CameraManager singleton;
         void Awake()

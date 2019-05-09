@@ -8,7 +8,6 @@ using UnityEngine;
         public float rm_multi;
         public bool rolling;
         float roll_t;
-        float runBreak_t;
         public bool runBreak;
         AnimationCurve rollCurve;
         public void Init(StateManager st)
@@ -27,7 +26,6 @@ using UnityEngine;
         public void InitForRunBreak()
         {
             runBreak = true;
-            runBreak_t = 0;
         }
 
 
@@ -43,7 +41,6 @@ using UnityEngine;
         {
             if(!runBreak)
                 return;
-            runBreak_t = 0;
             rm_multi = 0;
             runBreak = false;
         }
@@ -63,14 +60,14 @@ using UnityEngine;
                 Vector3 delta = anim.deltaPosition;
                 delta.y = 0;
                 Vector3 v = (delta * rm_multi) / states.delta;
-                states.rb.velocity = v + states.rb.velocity.y*Vector3.up;
+                states.rb.velocity =states.rb.velocity.y*Vector3.up + v;
             }
             else if(rolling)
             {
                 roll_t +=states.delta/0.5f;
                 if(roll_t >1)
                     roll_t = 1;
-                float Value = rollCurve.Evaluate(roll_t);
+                //float Value = rollCurve.Evaluate(roll_t);
                 if(states.moveDir!=Vector3.zero)
                 {
                     Vector3 relative = states.moveDir.normalized;
