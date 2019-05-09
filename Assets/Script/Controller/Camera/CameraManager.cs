@@ -143,19 +143,35 @@ using UnityEngine;
             
             pivot.localRotation = Quaternion.Euler(tiltAngle,0,0);
             
-            
+            HandleLockOnRotation(d);
+            HandeleLookToEnemyRotation(d);
             lookAngle += smoothX * targetSpeed;
             transformCache.rotation = Quaternion.Euler(0,lookAngle,0);
-
-
-
             
+        }
+        void HandleLockOnRotation(float d)
+        {
             if(lockonTarget != null)
             {
                  if(HandleLockDeadZone())
                      return;
-                //Vector3 targetDir = lockonTransform.position - this.transformCache.position;
                 Vector3 targetDir = Camera.main.ScreenToWorldPoint(lockOnPos) - this.transformCache.position;
+                targetDir.Normalize();
+                if(targetDir == Vector3.zero)
+                    targetDir = this.transformCache.forward;
+                Quaternion targetRot = Quaternion.LookRotation(targetDir);
+                targetRot.x = 0;
+                targetRot.z = 0;
+                transformCache.rotation = Quaternion.Slerp(transformCache.rotation,targetRot, d*lookSpeed);
+                lookAngle = transformCache.rotation.eulerAngles.y;
+            }
+        }
+
+        void HandeleLookToEnemyRotation(float d)
+        {
+            if(lookToEnemy)
+            {
+                Vector3 targetDir = lockonTransform.position - this.transformCache.position;
                 targetDir.Normalize();
 
                 if(targetDir == Vector3.zero)
@@ -163,20 +179,18 @@ using UnityEngine;
                 Quaternion targetRot = Quaternion.LookRotation(targetDir);
                 targetRot.x = 0;
                 targetRot.z = 0;
-                if(lookToEnemy)
+                
+                if(targetRot.eulerAngles.y+5f>transformCache.rotation.eulerAngles.y &&transformCache.rotation.eulerAngles.y>targetRot.eulerAngles.y-5f)
                 {
-                    if(targetRot.eulerAngles.y+3f>transformCache.rotation.eulerAngles.y &&transformCache.rotation.eulerAngles.y>targetRot.eulerAngles.y-3f)
-                    {
-                        lockonTarget =null;
-                        lockonTransform = null;
-                        lockon = false;
-                        lookToEnemy = false;
-                        return;
-                    }
+                    lockonTarget =null;
+                    lockonTransform = null;
+                    lockon = false;
+                    lookToEnemy = false;
+                    return;
                 }
-                transformCache.rotation = Quaternion.Slerp(transformCache.rotation,targetRot, d*lookSpeed);
+                
+                transformCache.rotation = Quaternion.Slerp(transformCache.rotation,targetRot, d*20);
                 lookAngle = transformCache.rotation.eulerAngles.y;
-                // return;
             }
         }
         bool HandleLockDeadZone()

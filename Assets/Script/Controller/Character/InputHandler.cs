@@ -36,7 +36,6 @@ using UnityEngine.UI;
         private bool jumpButtonDown;
         private bool lockOnButtonDown;
         private bool lookToEnemyButtonDown;
-        private Animator lockOnAnim;
         public StateManager states;
         CameraManager camManager;
         void Start()
@@ -48,7 +47,7 @@ using UnityEngine.UI;
             camManager = CameraManager.singleton;
             camManager.Init(states);
 
-            lockOnAnim = lockOnIcon.GetComponent<Animator>();
+            
 
         }
         void FixedUpdate()
@@ -65,17 +64,12 @@ using UnityEngine.UI;
             ArrowInput();
             delta = Time.deltaTime;
             states.Tick(delta);
-            // if(lockOnAnim.GetCurrentAnimatorStateInfo(0).normalizedTime>1f)
-            //     lockOnIcon.SetActive(false);
-            // if(lockOnIcon.activeSelf)
-            //     if(camManager.lockonTransform!=null)
-            //     lockOnIcon.transform.position = Camera.main.WorldToScreenPoint(camManager.lockonTransform.position+new Vector3(0,1,0));
         }
         void GetInput()
         {
             vertical = Input.GetAxis("Vertical");
             horizontal = Input.GetAxis("Horizontal");
-            o_input = Input.GetButton("O");
+            o_input = Input.GetButtonDown("O");
             s_input = Input.GetButton("S");
             t_input = Input.GetButtonUp("T");
             l1_input = Input.GetButton("L1");

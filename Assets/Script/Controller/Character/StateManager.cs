@@ -170,21 +170,22 @@ public class StateManager : MonoBehaviour
             return;
         if(O == false && X == false && S == false && T == false)
             return;
-        string targetAnim = null;
-        /*if(X)
-            targetAnim = "Jump";
-            if(O)
-            targetAnim = "oh_attack_1";
-        if(S)
-            targetAnim = "oh_attack_3";
-        if(T)
-            targetAnim = "th_attack_1";
-        */
-        if(targetAnim==null)
-            return;
+        //string targetAnim = null;
+        //if(X)
+            //targetAnim = "Jump";
+        // if(O)
+        //     targetAnim = "oh_attack_1";
+        // if(S)
+        //     targetAnim = "oh_attack_3";
+        // if(T)
+        //     targetAnim = "th_attack_1";
+        
+        // if(targetAnim==null)
+        //     return;
         canMove = false;
         inAction = true;
-        anim.CrossFade(targetAnim,0.2f);
+        //_actionDelayMaxTime = 
+        //anim.CrossFade(targetAnim,0.2f);
         //rb.velocity = Vector3.zero;
     }
     float ReturnCurrentBodyAndMoveAngle()
@@ -251,8 +252,8 @@ public class StateManager : MonoBehaviour
 
         //model.SetActive(false);
         //model.transform.localScale=new Vector3(0.2f,0.2f,0.2f);
-        var effect = Instantiate(effectPrefab,model.transform.position,Quaternion.identity);
-        effect.transform.position = model.transform.position;
+        var effect = Instantiate(effectPrefab,transform.position,Quaternion.identity);
+        //effect.transform.position = model.transform.position;
         Destroy(effect,effect.transform.GetChild(0).GetComponent<ParticleSystem>().main.duration);
         StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.5f,0.1f,2f));
         perfectDodge = true;
@@ -363,7 +364,6 @@ public class StateManager : MonoBehaviour
         if(!invincible)
             return;
         timer+=d;
-        model.transform.localScale = Vector3.MoveTowards(model.transform.localScale,new Vector3(1,1,1),0.1f);
         if(timer>BaseData.Instance.perfectDodgeTime)
         {
             perfectDodge = false;
@@ -372,10 +372,6 @@ public class StateManager : MonoBehaviour
         {
             timer = 0;
             invincible = false;
-            if(!model.activeSelf)
-            {
-                model.SetActive(true);
-            }
         }
     }
     public void Damage()
@@ -390,6 +386,11 @@ public class StateManager : MonoBehaviour
         StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.2f,0.05f,1.5f));
     }
 
+    public void Skill_DataBackup()
+    {
+        anim.CrossFade("Damage_SkillUsed",0.2f);
+        StartCoroutine(Camera.main.GetComponent<CameraShaker>().CameraShakeOneShot(0.2f,0.05f,1.5f));
+    }
     void HandleMovementAnimations()
     {
         anim.SetBool("run",run);
@@ -425,7 +426,8 @@ public class StateManager : MonoBehaviour
     {
         if(col.tag == "Bullet")
         {
-            TimeManager.Instance.SlowmotionSet(2,0.1f);
+            //TimeManager.Instance.SlowmotionSet(2,0.1f);
         }
     }
+
 }

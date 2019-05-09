@@ -16,9 +16,12 @@ public class AfterImage : MonoBehaviour
     public float timeMax = 60;
     public bool active;
     public string dir;
+    public bool stayImage;
     Vector3 end;
 	void Update ()
     {
+        if(stayImage)
+            return;
         //if (CitadelDeep.hitPause > 0 || CitadelDeep.debugPause) { return; }
         if (time > 0) 
         { 
@@ -53,21 +56,19 @@ public class AfterImage : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position,end , Vector3.Distance(transform.position,end/0.6f)*Time.deltaTime);
             }
         }
-        myAnimator.Play(targetAnimator.GetCurrentAnimatorStateInfo(6).shortNameHash, 6, targetAnimator.GetCurrentAnimatorStateInfo(6).normalizedTime);
-        //myAnimator.Play(myCharacterControl.animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-        //myAnimator.no
+        //myAnimator.Play(targetAnimator.GetCurrentAnimatorStateInfo(6).shortNameHash, 6, targetAnimator.GetCurrentAnimatorStateInfo(6).normalizedTime);
 
-        foreach(AnimatorControllerParameter param in targetAnimator.parameters)
-        {
-            if (param.type == AnimatorControllerParameterType.Float)
-            {
-                myAnimator.SetFloat(param.name, targetAnimator.GetFloat(param.name));
-            }
-            if (param.type == AnimatorControllerParameterType.Int)
-            {
-                myAnimator.SetInteger(param.name, targetAnimator.GetInteger(param.name));
-            }
-        }
+        // foreach(AnimatorControllerParameter param in targetAnimator.parameters)
+        // {
+        //     if (param.type == AnimatorControllerParameterType.Float)
+        //     {
+        //         myAnimator.SetFloat(param.name, targetAnimator.GetFloat(param.name));
+        //     }
+        //     if (param.type == AnimatorControllerParameterType.Int)
+        //     {
+        //         myAnimator.SetInteger(param.name, targetAnimator.GetInteger(param.name));
+        //     }
+        // }
 
 	}
 
@@ -84,9 +85,10 @@ public class AfterImage : MonoBehaviour
         transform.localScale = targetObject.transform.lossyScale;
         transform.rotation = targetObject.transform.rotation;
 
-        myAnimator.Play(targetAnimator.GetCurrentAnimatorStateInfo(0).shortNameHash, 0, targetAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-        //myAnimator.Play(myCharacterControl.animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-        //myAnimator.no
+        //myAnimator.Play(targetAnimator.GetCurrentAnimatorStateInfo(0).shortNameHash, 0, targetAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+        myAnimator.Play(targetAnimator.GetCurrentAnimatorStateInfo(6).shortNameHash, 6, targetAnimator.GetCurrentAnimatorStateInfo(6).normalizedTime);
+        // myAnimator.Play(myCharacterControl.animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+        // myAnimator.normalizedTime
 
         foreach(AnimatorControllerParameter param in targetAnimator.parameters)
         {
@@ -103,6 +105,29 @@ public class AfterImage : MonoBehaviour
         myAnimator.speed = 0;
         time = timeMax + 1;
         Update();
+    }
+    public void Stay()
+    {
+        transform.position = targetObject.transform.position;
+        transform.localScale = targetObject.transform.lossyScale;
+        transform.rotation = targetObject.transform.rotation;
+        myAnimator.Play(targetAnimator.GetCurrentAnimatorStateInfo(6).shortNameHash, 6, targetAnimator.GetCurrentAnimatorStateInfo(6).normalizedTime);
+        foreach(AnimatorControllerParameter param in targetAnimator.parameters)
+        {
+            if (param.type == AnimatorControllerParameterType.Float)
+            {
+                myAnimator.SetFloat(param.name, targetAnimator.GetFloat(param.name));
+            }
+            if (param.type == AnimatorControllerParameterType.Int)
+            {
+                myAnimator.SetInteger(param.name, targetAnimator.GetInteger(param.name));
+            }
+        }
+        myAnimator.speed = 0;
+        myRenderer.material.SetFloat("_Intensity", 100);
+        myRenderer.material.SetFloat("_MKGlowPower", 100);
+        stayImage = true;
+        
     }
     public void DodgeImage()
     {

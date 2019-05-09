@@ -106,6 +106,13 @@
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineMixer.cs" />
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineShot.cs" />
      <Compile Include="Assets\Cinemachine\Timeline\CinemachineTrack.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModuleAudio.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModulePhysics.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModulePhysics2D.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModuleSprite.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModuleUI.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModuleUnityVersion.cs" />
+     <Compile Include="Assets\DOTween\Modules\DOTweenModuleUtils.cs" />
      <Compile Include="Assets\Script\BulletDamageControl.cs" />
      <Compile Include="Assets\Script\Controller\Camera\CameraCollision.cs" />
      <Compile Include="Assets\Script\Controller\Camera\CameraManager.cs" />
@@ -120,6 +127,9 @@
      <Compile Include="Assets\Script\Controller\DataManager\MoveSpeedManager.cs" />
      <Compile Include="Assets\Script\Controller\DataManager\OverclockLevelManager.cs" />
      <Compile Include="Assets\Script\Controller\Enemys\EnemysData.cs" />
+     <Compile Include="Assets\Script\Controller\Skill\Skill_DataBackup.cs" />
+     <Compile Include="Assets\Script\Controller\Skill\SkillData.cs" />
+     <Compile Include="Assets\Script\Controller\Skill\SkillManager.cs" />
      <Compile Include="Assets\Script\Controller\TimeManager.cs" />
      <Compile Include="Assets\Script\Enemy\EnemysDamage.cs" />
      <Compile Include="Assets\Script\Enemy\EnemyTarget.cs" />
@@ -138,6 +148,7 @@
      <Compile Include="Assets\Script\UI\Enemys\UI_EnemysHPBar.cs" />
      <Compile Include="Assets\Script\UI\UI_ATKMode.cs" />
      <Compile Include="Assets\Script\UI\UI_ChargeTime.cs" />
+     <Compile Include="Assets\Script\UI\UI_LockOn.cs" />
      <Compile Include="Assets\Script\UI\UI_Shaker.cs" />
      <Compile Include="Assets\Script\UI\UI_ShootCount.cs" />
      <Compile Include="Assets\VFX\Affter Image\AfterImage.cs" />
@@ -164,6 +175,7 @@
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
      <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
+     <None Include="Assets\DOTween\readme.txt" />
      <None Include="Assets\VFX\GabrielAguiarProductions\Unique_Projectiles_Volume_1\Shaders\Additive_Scroll01.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
@@ -416,6 +428,9 @@
  </Reference>
  <Reference Include="Unity.Analytics.Tracker">
  <HintPath>C:/Users/shu/Documents/Renova/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTween">
+ <HintPath>C:/Users/shu/Documents/Renova/Assets/DOTween/DOTween.dll</HintPath>
  </Reference>
  <Reference Include="netstandard">
  <HintPath>C:/Program Files/Unity/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>

@@ -12,6 +12,7 @@ public class Test : MonoBehaviour
     public AnimatorHook a_hook;
     public AfterImagePool AIP;
     public Animator anim;
+    public SkillManager skillManager;
     void Start()
     {
         pos = gameObject.transform.position;
@@ -43,6 +44,8 @@ public class Test : MonoBehaviour
         if(col.tag=="Player")
         {
             a_hook = state.transform.GetComponentInChildren<AnimatorHook>();
+            if(skillManager.skill_DataBackup.canTrigger)
+                col.GetComponent<StateManager>().Skill_DataBackup();
             if(state.perfectDodge && a_hook.rolling)
             {
                 StartCoroutine(AIP.AddDodgeImage()) ;
@@ -50,6 +53,7 @@ public class Test : MonoBehaviour
                 state.model.SetActive(false);
                 timeManager.SlowmotionSet(1f,0.05f);
             }
+            
         }
     }
 }

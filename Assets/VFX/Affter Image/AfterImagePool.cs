@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 public class AfterImagePool : MonoBehaviour
 {
-
+    private static AfterImagePool instance = null;
+    public static AfterImagePool Instance
+    {
+        get {return instance;}
+    }
     //public CharacterControl myCharacterControl;
     public GameObject targetObject;     //Set these manually to the character object you're copying
     public Animator targetAnimator;   //Set these manually to the character object you're copying
@@ -20,6 +24,7 @@ public class AfterImagePool : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        instance = this;
         //myCharacterControl = transform.root.GetComponent<CharacterControl>();
         //Debug.Log("START AFTER IMAGE POOL");
         afterImages = new List<AfterImage>(poolSize);
@@ -61,13 +66,25 @@ public class AfterImagePool : MonoBehaviour
             afterImages[i].DodgeImage();
         }
     }
-    // public void AddDodgeImage()
-    // {
-    //     for (int i = 0; i < poolSize; i++)
-    //     {
-    //         afterImages[i].gameObject.SetActive(true);
-    //         afterImages[i].dir = dir[i];
-    //         afterImages[i].DodgeImage();
-    //     }
-    // }
+    public void StayCrossImage()
+    {
+        afterImages[0].gameObject.SetActive(true);
+        afterImages[0].dir = null;
+        afterImages[0].Activate();
+    }
+    public void StayImage()
+    {
+        afterImages[1].gameObject.SetActive(true);
+        afterImages[1].dir = null;
+        afterImages[1].Stay();
+    }
+    public void CloseImage()
+    {
+        for (int i = 0; i < poolSize; i++)
+        {
+            afterImages[i].gameObject.SetActive(false);
+            afterImages[i].stayImage = false;
+        }
+    }
+
 }
